@@ -39,6 +39,20 @@ try {
   await page.locator('#run-button').click();
   await page.waitForFunction(() => document.querySelector('#container-count')?.textContent === '1');
   assert.equal(await page.locator('.container-card.running').count(), 1);
+  await page.locator('[data-runtime="mkdir /tmp/work"]').click();
+  await page.waitForFunction(() => document.querySelector('#filesystem-tree')?.textContent.includes('/tmp/work/'));
+  await page.locator('[data-runtime="touch /tmp/note.txt"]').click();
+  await page.waitForFunction(() => document.querySelector('#filesystem-tree')?.textContent.includes('/tmp/note.txt'));
+  await page.locator('[data-runtime="write /tmp/note.txt hello from NITK"]').click();
+  await page.waitForFunction(() => document.querySelector('#terminal-log')?.textContent.includes('Wrote /tmp/note.txt'));
+  await page.locator('[data-runtime="ps"]').click();
+  await page.waitForFunction(() => document.querySelector('#process-list')?.textContent.includes('node'));
+  assert.ok(await page.locator('.process-row').count() >= 2);
+  await page.locator('#command').fill('docker stop c001');
+  await page.locator('#run-button').click();
+  await page.waitForFunction(() => document.querySelector('#container-shelf')?.textContent.includes('stopped'));
+  assert.equal(await page.locator('[data-runtime="ps"]').isDisabled(), true);
+
   assert.deepEqual(browserErrors, []);
   await page.screenshot({ path: 'artifacts/desktop.png', fullPage: true });
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
@@ -47,7 +61,7 @@ try {
   await mobile.locator('#build-button').click();
   await mobile.waitForFunction(() => document.querySelector('#image-count')?.textContent === '2');
   await mobile.screenshot({ path: 'artifacts/mobile.png', fullPage: true });
-  console.log('Browser smoke passed: desktop build, cache, run; mobile layout and build.');
+  console.log('Browser smoke passed: V3 desktop filesystem/process/stop; mobile layout and build.');
 } finally {
   if (browser) await browser.close();
   await new Promise(ok => server.close(ok));

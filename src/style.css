@@ -39,3 +39,28 @@
 .learning-note{font-size:11px;color:#91a9bb;line-height:1.6;margin-top:15px}
 @media(max-width:790px){.builder-grid{grid-template-columns:1fr}.builder-heading{padding:16px}.builder-grid{padding:16px}.editor-label{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.layer-brick,.image-chip{animation:none;transition:none}}
+
+/* V3 virtual filesystem and process explorer */
+.runtime-panel{border:1px solid #2e4555;border-radius:14px;background:#111d2b;margin-top:22px;overflow:hidden}
+.runtime-toolbar{display:flex;align-items:end;gap:18px;flex-wrap:wrap;padding:18px 22px;border-bottom:1px solid #2e4555}
+.runtime-toolbar>div:first-child{display:flex;flex-direction:column;gap:8px;min-width:185px}
+.runtime-toolbar label{color:#95aaba;font-size:11px}
+.runtime-toolbar select{background:#0d1928;color:#e4f5fa;border:1px solid #3b6171;border-radius:9px;padding:10px;max-width:100%}
+.runtime-actions{display:flex;gap:8px;flex-wrap:wrap;flex:1}
+.runtime-actions button{background:#193840;color:#b8eee8;border:1px solid #406c72;border-radius:7px;padding:10px;font-size:11px}
+.runtime-actions button:hover{border-color:#7ce2cf}
+.runtime-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:19px 22px}
+.runtime-surface{background:#0c1623;border:1px solid #2e4054;border-radius:10px;min-height:250px;min-width:0;padding:16px}
+.runtime-surface h3{font-size:13px;margin:0 0 14px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.runtime-surface h3 small{font-weight:400;color:#819cad;font-size:10px}
+.file-tree,.process-list{max-height:340px;min-height:140px;overflow:auto}
+.file-entry{display:flex;gap:12px;padding:7px 9px;border-radius:5px;font:12px ui-monospace,SFMono-Regular,Consolas,monospace;color:#d2e6e8;animation:appear .22s ease}
+.file-entry:nth-child(2n){background:#152334}
+.entry-icon{color:#62ddcb}.file-entry.file .entry-icon{color:#8cacff}
+.entry-name{overflow-wrap:anywhere;min-width:0}
+.process-row{display:grid;grid-template-columns:54px minmax(0,1fr) 58px;gap:8px;align-items:center;padding:10px 8px;border-bottom:1px solid #24374a;font-size:11px}
+.process-pid{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;color:#82d4d1}
+.process-name{overflow-wrap:anywhere}.process-status{color:#a2bdba}.process-row.running .process-status{color:#72dcb0}
+.container-card{cursor:pointer;text-align:left;font:inherit}.container-card.selected{outline:2px solid #74ddcf;outline-offset:2px}
+@media(max-width:790px){.runtime-grid{grid-template-columns:1fr}.runtime-toolbar,.runtime-grid{padding:14px}.runtime-toolbar>div:first-child{width:100%}}
+@media(prefers-reduced-motion:reduce){.file-entry{animation:none}}

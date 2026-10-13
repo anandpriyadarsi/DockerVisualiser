@@ -1,5 +1,7 @@
+import { createContainerRuntime, executeVirtualCommand } from './filesystem.js';
+
 /**
- * Deterministic Docker teaching simulator, V1 + V2.
+ * Deterministic Docker teaching simulator, V1 + V2 + V3.
  * Not a Docker CLI: no shell, network, filesystem, container runtime or dynamic eval.
  * Commands either return an entirely new state or the identical original on failure.
  */
@@ -90,6 +92,9 @@ function help() {
     'docker start <container-id>', 'docker stop <container-id>', 'docker rm <container-id>',
     'docker images', 'docker ps  (or docker ps -a)',
     'docker history <image>', 'docker build -t <name> .', 'docker help',
+    'docker exec <running-id> pwd | ls /tmp | ps',
+    'docker exec <running-id> mkdir /tmp/work | touch /tmp/note.txt',
+    'docker exec <running-id> write /tmp/note.txt hello | cat /tmp/note.txt | rm /tmp/note.txt',
   ].join('\n');
 }
 
@@ -156,6 +161,16 @@ export function runCommand(state, rawInput, options = {}) {
     if (args.length !== 5 || target !== '-t' || args[4] !== '.') return fail(state, 'Usage: docker build -t <image-name> .');
     return buildImage(state, args[3], options.dockerfile, input);
   }
+  if (action === 'exec') {
+    if (args.length < 4 || !ID_RE.test(target)) return fail(state, 'Usage: docker exec <running-container-id> <simulated-command>.');
+    const container = state.containers.find(c => c.id === target);
+    if (!container) return fail(state, `Container ${target} does not exist.`);
+    if (container.status !== 'running') return fail(state, `Container ${target} is stopped. Start it before using exec.`);
+    const virtual = executeVirtualCommand(container, args.slice(3).join(' '));
+    if (virtual.error) return fail(state, virtual.error);
+    const containers = state.containers.map(c => c.id === target ? { ...c, ...virtual.runtime } : c);
+    return done(state, { ...state, containers }, `[${target}] ${virtual.message}`, virtual.steps, input);
+  }
   if (!['pull', 'run', 'start', 'stop', 'rm'].includes(action) || args.length !== 3 || extra !== undefined) {
     return fail(state, 'Unknown or incomplete command. Type docker help to see supported commands.');
   }
@@ -171,7 +186,7 @@ export function runCommand(state, rawInput, options = {}) {
     ];
     if (action === 'pull') return done(state, { ...state, images }, image ? `Image ${target} already exists locally.` : `Pulled ${target} with ${resolved.layers.length} simulated base layers.`, steps, input);
     const id = `c${String(state.nextId).padStart(3, '0')}`;
-    const containers = [...state.containers, { id, image: target, imageId: resolved.id, status: 'running', layers: resolved.layers.map(l => ({ ...l })) }];
+    const containers = [...state.containers, { id, image: target, imageId: resolved.id, status: 'running', layers: resolved.layers.map(l => ({ ...l })), ...createContainerRuntime(resolved) }];
     steps.push({ kind: 'create', message: `Creating ${id} from ${target}` }, { kind: 'start', message: `Starting ${id}` });
     return done(state, { ...state, images, containers, nextId: state.nextId + 1 }, `Created ${id} from ${target}. Container is running.`, steps, input);
   }
@@ -183,5 +198,5 @@ export function runCommand(state, rawInput, options = {}) {
   if (action === 'rm' && container.status === 'running') return fail(state, `Stop ${target} before removing it (docker stop ${target}).`);
   if (action === 'rm') return done(state, { ...state, containers: state.containers.filter(c => c.id !== target) }, `Removed container ${target}.`, [{ kind: 'remove', message: `Removing ${target} from host` }], input);
   const nextStatus = action === 'start' ? 'running' : 'stopped';
-  return done(state, { ...state, containers: state.containers.map(c => c.id === target ? { ...c, status: nextStatus } : c) }, `${target} is now ${nextStatus}.`, [{ kind: action, message: `${action === 'start' ? 'Starting' : 'Stopping'} ${target}` }], input);
+  return done(state, { ...state, containers: state.containers.map(c => c.id === target ? { ...c, status: nextStatus, processes: c.processes.map(p => ({ ...p, status: nextStatus === 'running' ? 'running' : 'stopped' })) } : c) }, `${target} is now ${nextStatus}.`, [{ kind: action, message: `${action === 'start' ? 'Starting' : 'Stopping'} ${target}` }], input);
 }

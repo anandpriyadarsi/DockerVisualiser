@@ -11,7 +11,7 @@
   <div class="shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="DockerVisualiser home"><span class="brand-symbol">⬡</span><span>DOCKER<span class="brand-light">VISUALISER</span></span></a>
-      <span class="pill"><span class="online-dot"></span> V2 · Images & Layers</span>
+      <span class="pill"><span class="online-dot"></span> V3 · Files & Processes</span>
     </header>
 
     <main>
@@ -45,6 +45,8 @@
             <button type="button" data-command="docker help">help</button>
             <button type="button" data-command="docker images">images</button>
             <button type="button" data-command="docker history iris-app">image history</button>
+            <button type="button" data-command="docker exec c001 ls /">exec ls /</button>
+            <button type="button" data-command="docker exec c001 ps">exec ps</button>
           </div>
           <p class="keyboard-hint">Tip: ↑ and ↓ browse previous commands.</p>
         </div>
@@ -64,8 +66,13 @@
           <div id="stage-message" class="stage-message" role="status" aria-live="polite" data-state="ready">Ready to simulate Docker commands.</div>
         </div>
       </section>
+      <section class="runtime-panel" aria-label="Container runtime explorer">
+        <div class="builder-heading"><div><span class="panel-kicker">03 / CONTAINER RUNTIME</span><h2>Explore a running container</h2><p>Select a container, then watch its in-memory files and simulated process activity change with docker exec.</p></div><span class="micro-tag">Virtual only · no shell</span></div>
+        <div class="runtime-toolbar"><div><label for="container-select">Selected container</label><select id="container-select" aria-label="Select a container"><option value="">Run an image first</option></select></div><div class="runtime-actions"><button type="button" data-runtime="ls /">List files</button><button type="button" data-runtime="ps">View processes</button><button type="button" data-runtime="mkdir /tmp/work">Create folder</button><button type="button" data-runtime="touch /tmp/note.txt">Create file</button><button type="button" data-runtime="write /tmp/note.txt hello from NITK">Write file</button></div></div>
+        <div class="runtime-grid"><div class="runtime-surface"><h3>Virtual filesystem <small id="file-count">0 entries</small></h3><div id="filesystem-tree" class="file-tree" aria-live="polite"><p class="empty-note">Start and select a container to explore its files.</p></div></div><div class="runtime-surface"><h3>Process explorer <small>PID 1 + simulated exec</small></h3><div id="process-list" class="process-list" aria-live="polite"><p class="empty-note">Process activity will appear here.</p></div><p class="learning-note">Each exec creates a short-lived simulated process. Files stay with their container after stop/start; containers never modify the image.</p></div></div>
+      </section>
       <section class="builder-panel" aria-label="Dockerfile image builder">
-        <div class="builder-heading"><div><span class="panel-kicker">03 / DOCKERFILE LAB</span><h2>Build an image, see every layer</h2><p>Edit the Dockerfile, build a tagged image, then inspect or run it.</p></div><span class="micro-tag">No Docker daemon</span></div>
+        <div class="builder-heading"><div><span class="panel-kicker">04 / DOCKERFILE LAB</span><h2>Build an image, see every layer</h2><p>Edit the Dockerfile, build a tagged image, then inspect or run it.</p></div><span class="micro-tag">No Docker daemon</span></div>
         <div class="builder-grid">
           <div class="editor-col">
             <label for="dockerfile-editor" class="editor-label">Dockerfile <span>Supported: FROM · WORKDIR · COPY · RUN · CMD</span></label>
@@ -92,7 +99,7 @@ CMD ["node", "app.js"]</textarea>
           </div>
         </div>
       </section>
-      <footer>DockerVisualiser V2 · A browser-only model · Commands are never sent to a system shell. <a href="./docs/ROADMAP.md">Development roadmap</a></footer>
+      <footer>DockerVisualiser V3 · A browser-only model · Commands are never sent to a system shell. <a href="./docs/ROADMAP.md">Development roadmap</a></footer>
     </main>
   </div>
   <script type="module" src="./src/app.js"></script>

@@ -1,13 +1,14 @@
 # DockerVisualiser — GDG × IRIS NITK 2026 Recruitment
 
-**Task ID:** `DockerVisualiser` · **Category:** First-year Challenge
-**Status:** V1 containers and V2 images/layers implemented; V3 and public deployment pending.
+**Task ID:** `DockerVisualiser`  
+**Category:** 1st-year Challenge  
+**Status:** Versions 1, 2 and 3 implemented; public deployment and final video pending.
 
-## What is it?
+## What this does
 
-An interactive, browser-only educational Docker simulator. Enter supported commands to see an animated image library, container lifecycle and layered images. **No Docker daemon, shell or real registry is used.** This is an intentionally simplified teaching model, not a full Docker replacement.
+A safe browser-only Docker simulator: enter supported Docker commands and see the image library and container lifecycle change. It does **not** execute Docker commands or use a real Docker daemon.
 
-### V1 — Containers
+### V1 supported commands
 
 ```text
 docker pull ubuntu
@@ -17,74 +18,102 @@ docker ps -a
 docker images
 docker stop c001
 docker start c001
+docker stop c001
 docker rm c001
 docker help
 ```
 
-Container IDs are assigned deterministically. A missing image is simulated as pulled on first use. Invalid operations (such as deleting a running container) fail without changing the state.
+### V2: Images and layers
 
-### V2 — Images and layers
+The Dockerfile lab supports `FROM`, `WORKDIR`, `COPY`, `RUN`, and `CMD` (one base image only). The following commands are now available:
 
-The interactive Dockerfile editor supports one `FROM` instruction followed by `WORKDIR`, `COPY`, `RUN` and `CMD` instructions.
-
-```dockerfile
-FROM ubuntu
-WORKDIR /app
-COPY app.js /app/
-RUN echo ready
-CMD ["node", "app.js"]
+```text
+docker build -t iris-app .
+docker history iris-app
+docker run iris-app
 ```
 
-Try `docker build -t iris-app .` in the terminal or click **Build image**. Then select the image chip to inspect its layers and run `docker history iris-app` or `docker run iris-app`.
+The Dockerfile is edited in the browser before running the build command. Select an image chip to see its ordered base and custom layers. Rebuilding an unchanged image shows cached layers; changes to instructions invalidate subsequent layers. `RUN`, `COPY` and `CMD` are *only represented as strings* in a learning model: nothing actually executes or copies files.
 
-- A successful build produces an ordered layer stack and a tagged image.
-- Repeated builds reuse simulated cached layers; changing an earlier step invalidates its dependent layers.
-- Running a built image creates a container with a snapshot of its image layers.
-- Malformed Dockerfiles fail atomically.
-- `RUN`, `COPY` and `CMD` are modeled, **never executed**. Illustrative registry images have three generated base layers. Simulated layer identifiers are not real Docker digests.
+### V3: Container filesystem and processes
 
-## Run locally
+Version 3 adds the **Container Runtime** panel. Select a container to see its virtual directory tree, files, PID 1, and the last six short-lived `docker exec` operations. Each container receives an independent writable filesystem. Its image layers never change when files are added or removed. A stopped container preserves its virtual files but rejects `exec` until restarted.
 
-Prerequisites: Node.js 20+ for testing and Python or any static file server for viewing.
+Try:
+
+```text
+docker run iris-app
+docker exec c001 pwd
+docker exec c001 ls /
+docker exec c001 ps
+docker exec c001 mkdir /tmp/work
+docker exec c001 touch /tmp/work/notes.txt
+docker exec c001 write /tmp/work/notes.txt hello from NITK
+docker exec c001 cat /tmp/work/notes.txt
+docker exec c001 rm /tmp/work/notes.txt
+```
+
+`write` is an **educational extension**, not a real Docker shell command. Simulated `docker exec` supports only `pwd`, `ls`, `ps`, `mkdir`, `touch`, `write`, `cat`, and `rm` for **absolute virtual paths**. It does not execute a real shell, run container images, access your disk or network, or execute Dockerfile `RUN` commands. `COPY` produces a labeled placeholder file and `CMD` labels simulated PID 1. This model illustrates concepts rather than replicating Docker internals.
+
+Virtual filesystem content is limited to 120 entries per container and 160 characters per file; only the last 12 completed simulated exec processes are retained. All simulation data resets upon browser reload.
+
+The image library and container lifecycle are held in browser memory and reset on page reload. This is a teaching simulator, not an actual Docker daemon. A registry image is represented by three illustrative base layers; the IDs are simulated and not real Docker hashes.
+
+The simulator automatically pulls a missing image when `docker run` is issued, caches that image, creates unique container IDs, and rejects invalid state transitions without partially modifying the environment.
+
+## Setup
+
+Requires **Node.js 20+** to run automated tests. No JavaScript dependencies are required.
 
 ```bash
 npm test
+```
+
+On Windows PowerShell, use `npm.cmd test` if `npm.ps1` is blocked by the execution policy.
+
+Open the UI using an ordinary local static server. With Python installed:
+
+```bash
 python -m http.server 5500
 ```
 
-Open [http://localhost:5500](http://localhost:5500). Direct `file://` use may fail because browsers restrict ES module imports.
-
-Use the editor to build `iris-app`, then run it. Stop and start `c001`; inspect the image-layer graph. Reset clears the in-memory environment. **State does not persist across page reloads.**
+Then visit `http://localhost:5500` in Chrome/Edge. Direct `file:///` opening may prevent ES module imports.
 
 ## Architecture
 
-| File | Responsibility |
-| --- | --- |
-| `src/simulator.js` | Pure command parser, Dockerfile parser, image/layer state model |
-| `src/app.js` | Terminal events, animation progress, image/layer inspector |
-| `src/style.css` | Responsive Docker playground and layer stack visuals |
-| `tests/simulator.test.mjs` | V1 lifecycle and failure safety |
-| `tests/images.test.mjs` | V2 Dockerfile, image caching, invalid-state tests |
-| `docs/ROADMAP.md` | V3 scope and acceptance checklist |
+- `src/simulator.js`: pure deterministic Docker state machine and command parser (no execution)
+- `src/filesystem.js`: immutable virtual filesystem and simulated process operations
+- `src/app.js`: DOM state and interaction layer
+- `src/style.css`: responsive visual layout and container animations
+- `tests/simulator.test.mjs`: automated tests using built-in Node test runner
+- `docs/ROADMAP.md`: completion checklist and recruitment tasks
 
-There are no runtime dependencies, browser secrets, third-party fonts, or external API calls.
+No external services, credentials, analytics or APIs are used by this prototype. The browser stores no personal data.
 
-## Validation
+## Demo scenario
 
-18 local unit tests passed on 13 October 2026. GitHub source file hashes were checked against the tested local files. Browser validation on desktop/mobile and deployed URL verification remain **pending**, not claimed as passed.
+1. `docker run ubuntu` → first download creates an image then starts `c001`.
+2. `docker stop c001` → container changes to stopped.
+3. `docker start c001` → it resumes.
+4. `docker rm c001` → fails while container is running, state stays intact.
+5. `docker stop c001` then `docker rm c001` → container disappears.
+6. `docker run ubuntu` → starts `c002` without downloading ubuntu again.
 
-## Still to complete before recruitment submission
+## Scope and limitations
 
-1. V3: simulated container filesystem, processes and safe `docker exec` operations.
-2. Desktop/mobile/browser accessibility checks and final explanatory UX.
-3. Deploy a public playground URL, record a demonstration video and submit the first-year form by **20 October 2026 at 11:59 PM IST**.
+V1-V3 functionality exists, but the **recruitment submission is not complete** until it is publicly deployed, reviewed visually, and demonstrated in a video. The simulator intentionally supports a safe subset of Docker commands and stylized CSS isometric objects rather than real container infrastructure or a full 3D engine.
 
-**Recruitment:** Keep this source repository private and invite mentor [Varshini Adurti](https://github.com/VarshiniAdurti28). A public deployed playground is required separately.
+## Recruitment notes
 
-## Credits and learning note
+- Keep the **source GitHub repository private** and invite the task mentor as a collaborator.
+- The final deployed playground must have a **public URL**.
+- Include an actual demo video, well-written instructions, code understanding, meaningful incremental commits, and resource attribution.
+- Submit the official first-year recruitment form before **20 October 2026 at 11:59 PM IST**.
 
-- [Official DockerVisualiser challenge](https://github.com/WebClub-NITK/GDGxIris-Recruitments-2026/blob/main/Challenges/DockerVisualiser.md)
-- [Docker CLI reference](https://docs.docker.com/reference/cli/docker/)
+## References and attribution
+
+- [Official first-year recruitment challenge](https://github.com/WebClub-NITK/GDGxIris-Recruitments-2026/blob/main/Challenges/DockerVisualiser.md)
+- [Docker command reference](https://docs.docker.com/reference/cli/docker/)
 - [Dockerfile reference](https://docs.docker.com/reference/dockerfile/)
 
-This project received AI assistance. The applicant is responsible for reviewing the code, understanding each operation, documenting external sources, and honestly demonstrating working behaviour. No third-party visual assets are bundled.
+Initial design and code were prepared with AI assistance; the applicant should review and explain each feature before submission. No third-party visual assets or component libraries are included.
