@@ -2,7 +2,7 @@ name: DockerVisualiser checks
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'feature/docker-visualiser-v3']
   pull_request:
 
 permissions:
@@ -26,8 +26,9 @@ jobs:
       - name: Validate JS syntax
         run: |
           node --check src/simulator.js
+          node --check src/filesystem.js
           node --check src/app.js
-      - name: Run V1 and V2 tests
+      - name: Run V1-V3 tests
         run: npm test
 
   browser-smoke:
