@@ -2,7 +2,7 @@
 
 **Task ID:** `DockerVisualiser`  
 **Category:** 1st-year Challenge  
-**Status:** Versions 1, 2 and 3 implemented. Guided practice and deployment packaging ready; public URL and final demo video still pending.
+**Status:** Versions 1–3 and guided practice implemented. Netlify deployment candidate exists; anonymous/public acceptance and real demo video remain to be completed.
 
 ## What this does
 
@@ -65,7 +65,9 @@ The simulator automatically pulls a missing image when `docker run` is issued, c
 
 Three interactive missions now teach **Containers**, **Image layers**, and **Files & processes**. The “Use this command” button prefills the terminal; a checkpoint completes only after a successful expected command. The progress is in memory and resets with the environment. This is deliberately beginner-friendly but still teaches actual state transitions, rather than simply rewarding clicks.
 
-To prepare the safe, minimal public website folder, run `npm run build`. The `dist/` folder contains only browser app assets and is ignored by Git. See [public deployment and two-minute demo checklist](docs/DEPLOYMENT_AND_DEMO.md). **There is no public URL or demo video yet.**
+To prepare the safe, minimal public website folder, run `npm run build`. The `dist/` folder contains only browser app assets and is ignored by Git. See [public deployment guide](docs/DEPLOYMENT_AND_DEMO.md) and the [exact final acceptance and demo plan](docs/FINAL_ACCEPTANCE_AND_DEMO.md). A deployment candidate is available at https://prismatic-lamington-67be56.netlify.app/; public/incognito accessibility still needs verification. **The real demo video and submission form are not completed yet.**
+
+For a read-only external check of the live CSS and JavaScript paths, use `npm run check:live -- https://prismatic-lamington-67be56.netlify.app/` (PowerShell: `npm.cmd run check:live -- https://prismatic-lamington-67be56.netlify.app/`).
 
 ## Setup
 
