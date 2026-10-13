@@ -22,8 +22,11 @@
 - [x] 25 total unit tests passed locally; GitHub CI checks required before main promotion
 
 ## Finish recruitment submission
-- [ ] Confirm Ubuntu/Windows tests and Chromium smoke checks on V3 commit
-- [ ] Publicly deploy static playground (GitHub repository remains private)
+- [x] V3 verified on Ubuntu, Windows and Chromium at commit 0ed4ae8
+- [x] Guided beginner missions and static dist/ packaging implemented on main at 429afc3
+- [ ] Verify release-gate branch CI and review its deployment artifact check
+- [ ] Build and verify the public-only artifact with `npm.cmd run build` and `npm.cmd run verify:release`
+- [ ] Publicly deploy **only** dist/ via Netlify Drop (GitHub repository remains private)
 - [ ] Check public URL from a clean browser session and mobile layout
 - [ ] Record an actual demonstration video of all three versions
 - [ ] Review README and documentation of simulator limitations, AI assistance and credits
