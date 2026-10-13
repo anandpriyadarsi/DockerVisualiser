@@ -42,7 +42,7 @@ try {
   assert.equal(await page.locator('#lesson-step-title').textContent(), 'Start a fresh container');
 
   await page.locator('#build-button').click();
-  await page.waitForFunction(() => document.querySelector('#image-count')?.textContent === '2');
+  await page.waitForFunction(() => document.querySelector('#image-count')?.textContent === '3');
   assert.equal(await page.locator('.layer-brick').count(), 7);
   await page.locator('#build-button').click();
   await page.waitForFunction(() => document.querySelector('#terminal-log')?.textContent.includes('4 reused from cache'));
