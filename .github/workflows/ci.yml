@@ -32,7 +32,9 @@ jobs:
       - name: Run V1-V3 and guided lesson tests
         run: npm test
       - name: Validate static deployment package
-        run: npm run build
+        run: |
+          npm run build
+          npm run verify:release
 
   browser-smoke:
     name: Chromium desktop/mobile smoke
