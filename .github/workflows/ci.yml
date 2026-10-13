@@ -2,7 +2,7 @@ name: DockerVisualiser checks
 
 on:
   push:
-    branches: [main, 'feature/docker-visualiser-v3']
+    branches: ['**']
   pull_request:
 
 permissions:
@@ -28,8 +28,11 @@ jobs:
           node --check src/simulator.js
           node --check src/filesystem.js
           node --check src/app.js
-      - name: Run V1-V3 tests
+          node --check src/lessons.js
+      - name: Run V1-V3 and guided lesson tests
         run: npm test
+      - name: Validate static deployment package
+        run: npm run build
 
   browser-smoke:
     name: Chromium desktop/mobile smoke

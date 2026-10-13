@@ -64,3 +64,32 @@
 .container-card{cursor:pointer;text-align:left;font:inherit}.container-card.selected{outline:2px solid #74ddcf;outline-offset:2px}
 @media(max-width:790px){.runtime-grid{grid-template-columns:1fr}.runtime-toolbar,.runtime-grid{padding:14px}.runtime-toolbar>div:first-child{width:100%}}
 @media(prefers-reduced-motion:reduce){.file-entry{animation:none}}
+
+/* Recruitment polish: interactive beginner lessons + keyboard accessibility */
+.missions{border:1px solid #335068;border-radius:16px;background:linear-gradient(135deg,#102639,#111b2b 64%);margin:20px 0;overflow:hidden}
+.mission-heading{display:flex;justify-content:space-between;gap:12px;align-items:start;padding:20px 23px 10px}
+.mission-heading h2{font-size:19px;margin:9px 0 5px;letter-spacing:-.015em}
+.mission-heading p{font-size:12px;color:#a5bdca;line-height:1.55;margin:0}
+.lesson-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:14px 23px;border-bottom:1px solid #304559}
+.lesson-tabs button{background:#172537;color:#aac5d3;border:1px solid #34495e;border-radius:9px;padding:12px;text-align:center;font-size:12px}
+.lesson-tabs button[aria-selected="true"]{background:#1a4147;border-color:#66d8cc;color:#d7fff7;font-weight:700}
+.lesson-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:22px;padding:23px}
+.lesson-main{min-width:0}.lesson-step-label{font-size:10px;letter-spacing:.15em;font-weight:800;color:#7de5d8}
+.lesson-main h3{font-size:19px;margin:11px 0 8px}.lesson-main p{font-size:13px;color:#b2c6d4;line-height:1.55;max-width:55ch}
+#lesson-command{display:block;background:#081622;color:#9df1e1;border:1px solid #345366;border-radius:9px;padding:13px;margin:17px 0 12px;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}
+#lesson-load{background:#65dbca;color:#07232b;font-weight:800;border:0;border-radius:8px;padding:11px 15px;font-size:12px}
+.lesson-main .lesson-hint{font-size:11px;color:#87a7b9;margin:10px 0}
+.lesson-side{border-left:1px solid #294258;padding-left:22px;min-width:0}
+.lesson-meter{font-size:11px;color:#aad3d8}.lesson-meter>div{height:7px;border-radius:20px;background:#274254;margin:12px 0 17px;overflow:hidden}
+#lesson-meter-fill{display:block;height:100%;background:#62dbca;width:0;transition:width .2s ease}
+.lesson-checkpoints{padding:0;margin:0;display:grid;gap:10px;list-style:none}
+.lesson-checkpoints li{display:flex;align-items:center;gap:10px;font-size:11px;color:#93abbc}
+.lesson-checkpoints li.current{color:#effffb;font-weight:750}.lesson-checkpoints li.complete{color:#a7efdd}
+.checkpoint-marker{height:22px;width:22px;border:1px solid #3a5666;border-radius:50%;display:grid;place-items:center;flex:none;font-size:10px}
+.complete .checkpoint-marker{background:#28655b;color:#eafff8;border-color:#43a993}.current .checkpoint-marker{border-color:#63daca}
+.lesson-concept{font-size:11px;line-height:1.65;color:#96b3c6;border-top:1px solid #2a4353;padding-top:11px;margin:17px 0 0}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #92f3dc;outline-offset:3px}
+.terminal-form:focus-within{border-color:#83e8d9;box-shadow:0 0 0 2px #83e8d922}
+@media(max-width:790px){.lesson-detail{grid-template-columns:1fr}.lesson-side{border-left:0;border-top:1px solid #294258;padding:17px 0 0}.mission-heading{padding:17px}.lesson-tabs{padding:10px 17px}.lesson-detail{padding:17px}}
+@media(max-width:470px){.lesson-tabs{grid-template-columns:1fr}.lesson-tabs button{padding:11px}.mission-heading{flex-wrap:wrap}.mission-heading .micro-tag{display:none}}
+@media(prefers-reduced-motion:reduce){#lesson-meter-fill{transition:none}html:focus-within{scroll-behavior:auto}}
