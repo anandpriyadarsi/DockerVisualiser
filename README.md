@@ -2,7 +2,7 @@
 
 **Task ID:** `DockerVisualiser`  
 **Category:** 1st-year Challenge  
-**Status:** Versions 1, 2 and 3 implemented; public deployment and final video pending.
+**Status:** Versions 1, 2 and 3 implemented. Guided practice and deployment packaging ready; public URL and final demo video still pending.
 
 ## What this does
 
@@ -60,6 +60,12 @@ Virtual filesystem content is limited to 120 entries per container and 160 chara
 The image library and container lifecycle are held in browser memory and reset on page reload. This is a teaching simulator, not an actual Docker daemon. A registry image is represented by three illustrative base layers; the IDs are simulated and not real Docker hashes.
 
 The simulator automatically pulls a missing image when `docker run` is issued, caches that image, creates unique container IDs, and rejects invalid state transitions without partially modifying the environment.
+
+## Guided learning and final recruitment delivery
+
+Three interactive missions now teach **Containers**, **Image layers**, and **Files & processes**. The “Use this command” button prefills the terminal; a checkpoint completes only after a successful expected command. The progress is in memory and resets with the environment. This is deliberately beginner-friendly but still teaches actual state transitions, rather than simply rewarding clicks.
+
+To prepare the safe, minimal public website folder, run `npm run build`. The `dist/` folder contains only browser app assets and is ignored by Git. See [public deployment and two-minute demo checklist](docs/DEPLOYMENT_AND_DEMO.md). **There is no public URL or demo video yet.**
 
 ## Setup
 

@@ -11,7 +11,7 @@
   <div class="shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="DockerVisualiser home"><span class="brand-symbol">⬡</span><span>DOCKER<span class="brand-light">VISUALISER</span></span></a>
-      <span class="pill"><span class="online-dot"></span> V3 · Files & Processes</span>
+      <span class="pill"><span class="online-dot"></span> V3 · Guided Playground</span>
     </header>
 
     <main>
@@ -28,6 +28,18 @@
         <div class="stat stat-tip"><span>YOUR NEXT STEP</span><strong>docker run ubuntu</strong></div>
       </section>
 
+      <section class="missions" aria-labelledby="missions-title">
+        <div class="mission-heading"><div><span class="panel-kicker">GUIDED PRACTICE</span><h2 id="missions-title">Learn Docker in three short missions</h2><p>Follow the commands yourself. Each checkpoint completes only when the simulator confirms the right result.</p></div><span class="micro-tag">Beginner friendly</span></div>
+        <div id="lesson-tabs" class="lesson-tabs" role="tablist" aria-label="Choose a Docker lesson">
+          <button type="button" role="tab" id="lesson-tab-containers" aria-selected="true" aria-controls="lesson-detail" data-lesson="containers">01 · Containers</button>
+          <button type="button" role="tab" id="lesson-tab-layers" aria-selected="false" aria-controls="lesson-detail" data-lesson="layers">02 · Image layers</button>
+          <button type="button" role="tab" id="lesson-tab-filesystem" aria-selected="false" aria-controls="lesson-detail" data-lesson="filesystem">03 · Files & processes</button>
+        </div>
+        <div id="lesson-detail" role="tabpanel" aria-labelledby="lesson-tab-containers" class="lesson-detail">
+          <div class="lesson-main"><span id="lesson-step-label" class="lesson-step-label">STEP 1 OF 4</span><h3 id="lesson-step-title">Find an image</h3><p id="lesson-step-description">Pull Alpine into the simulated image library.</p><code id="lesson-command">docker pull alpine</code><button id="lesson-load" type="button">Use this command <span aria-hidden="true">↗</span></button><p class="lesson-hint">The button fills the terminal. Press Run yourself to learn by doing.</p></div>
+          <div class="lesson-side"><div class="lesson-meter"><span id="lesson-progress-text">0 of 4 steps complete</span><div id="lesson-progressbar" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span id="lesson-meter-fill"></span></div></div><ol id="lesson-checkpoints" class="lesson-checkpoints"></ol><p id="lesson-concept" class="lesson-concept"></p></div>
+        </div>
+      </section>
       <section class="workbench">
         <div class="panel terminal-panel">
           <div class="panel-header"><div><span class="panel-kicker">01 / COMMAND LINE</span><h2>Simulated terminal</h2></div><span class="micro-tag">sandboxed</span></div>
@@ -99,7 +111,7 @@ CMD ["node", "app.js"]</textarea>
           </div>
         </div>
       </section>
-      <footer>DockerVisualiser V3 · A browser-only model · Commands are never sent to a system shell. <a href="./docs/ROADMAP.md">Development roadmap</a></footer>
+      <footer>DockerVisualiser V3 · Guided learning · A browser-only model · Commands are never sent to a system shell. <a href="./docs/ROADMAP.md">Development roadmap</a></footer>
     </main>
   </div>
   <script type="module" src="./src/app.js"></script>

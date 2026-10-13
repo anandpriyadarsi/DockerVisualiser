@@ -30,8 +30,19 @@ try {
   const browserErrors = [];
   page.on('pageerror', error => browserErrors.push(String(error)));
   await page.goto(url);
+  assert.equal(await page.locator('[data-lesson="containers"]').getAttribute('aria-selected'), 'true');
+  assert.equal(await page.locator('#lesson-step-title').textContent(), 'Find an image');
+  await page.locator('#lesson-load').click();
+  assert.equal(await page.locator('#command').inputValue(), 'docker pull alpine');
+  await page.locator('#run-button').click();
+  await page.waitForFunction(() => document.querySelector('#lesson-step-title')?.textContent === 'Create a container');
+  await page.locator('[data-lesson="layers"]').click();
+  assert.equal(await page.locator('#lesson-step-title').textContent(), 'Build a tagged image');
+  await page.locator('[data-lesson="filesystem"]').click();
+  assert.equal(await page.locator('#lesson-step-title').textContent(), 'Start a fresh container');
+
   await page.locator('#build-button').click();
-  await page.waitForFunction(() => document.querySelector('#image-count')?.textContent === '2');
+  await page.waitForFunction(() => document.querySelector('#image-count')?.textContent === '3');
   assert.equal(await page.locator('.layer-brick').count(), 7);
   await page.locator('#build-button').click();
   await page.waitForFunction(() => document.querySelector('#terminal-log')?.textContent.includes('4 reused from cache'));
@@ -61,7 +72,7 @@ try {
   await mobile.locator('#build-button').click();
   await mobile.waitForFunction(() => document.querySelector('#image-count')?.textContent === '2');
   await mobile.screenshot({ path: 'artifacts/mobile.png', fullPage: true });
-  console.log('Browser smoke passed: V3 desktop filesystem/process/stop; mobile layout and build.');
+  console.log('Browser smoke passed: V3 runtime and guided lessons; desktop/mobile responsive.');
 } finally {
   if (browser) await browser.close();
   await new Promise(ok => server.close(ok));

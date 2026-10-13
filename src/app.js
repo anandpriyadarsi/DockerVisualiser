@@ -1,9 +1,11 @@
 import { createInitialState, runCommand } from './simulator.js';
+import { LESSONS, initialProgress, activeLesson, suggestedCommand, observeCommand, chooseLesson } from './lessons.js';
 
 let state = createInitialState();
 let busy = false;
 let selectedImage = null;
 let selectedContainer = null;
+let lessonProgress = initialProgress();
 const commandInput = document.querySelector('#command');
 const terminalLog = document.querySelector('#terminal-log');
 const imageShelf = document.querySelector('#image-shelf');
@@ -139,6 +141,41 @@ function render() {
     containerShelf.append(card);
   }
   renderRuntime();
+  renderLesson();
+}
+
+function renderLesson() {
+  const lesson = activeLesson(lessonProgress);
+  const track = lessonProgress.tracks[lesson.id];
+  const finished = track.index === lesson.steps.length;
+  document.querySelectorAll('[data-lesson]').forEach(tab => {
+    const active = tab.dataset.lesson === lesson.id;
+    tab.setAttribute('aria-selected', String(active));
+    tab.tabIndex = active ? 0 : -1;
+  });
+  document.querySelector('#lesson-detail').setAttribute('aria-labelledby', `lesson-tab-${lesson.id}`);
+  document.querySelector('#lesson-step-label').textContent = finished ? 'MISSION COMPLETE' : `STEP ${track.index + 1} OF ${lesson.steps.length}`;
+  document.querySelector('#lesson-step-title').textContent = finished ? 'Excellent work — mission complete!' : lesson.steps[track.index].heading;
+  document.querySelector('#lesson-step-description').textContent = finished ? 'You performed every checkpoint in the simulator. Choose another lesson to continue.' : lesson.steps[track.index].text;
+  document.querySelector('#lesson-concept').textContent = lesson.concept;
+  const code = document.querySelector('#lesson-command');
+  code.textContent = finished ? '✓ All checkpoints completed' : suggestedCommand(lessonProgress);
+  const load = document.querySelector('#lesson-load');
+  load.disabled = finished;
+  load.textContent = finished ? 'Mission complete ✓' : 'Use this command ↗';
+  document.querySelector('#lesson-progress-text').textContent = `${track.index} of ${lesson.steps.length} steps complete`;
+  const meter = document.querySelector('#lesson-progressbar');
+  meter.setAttribute('aria-valuemax', String(lesson.steps.length));
+  meter.setAttribute('aria-valuenow', String(track.index));
+  document.querySelector('#lesson-meter-fill').style.width = `${100 * track.index / lesson.steps.length}%`;
+  const list = document.querySelector('#lesson-checkpoints');
+  list.replaceChildren();
+  lesson.steps.forEach((step, i) => {
+    const item = element('li', `${i < track.index ? 'complete' : ''} ${i === track.index ? 'current' : ''}`);
+    item.append(element('span', 'checkpoint-marker', i < track.index ? '✓' : String(i + 1)), element('span', '', step.heading));
+    if (i === track.index) item.setAttribute('aria-current', 'step');
+    list.append(item);
+  });
 }
 
 function appendTerminal(command, message, ok) {
@@ -169,6 +206,7 @@ async function runInteractive(command) {
       markJourney(step.kind);
       await wait(200);
     }
+    lessonProgress = observeCommand(lessonProgress, command, result);
     state = result.state;
     if (command.startsWith('docker build -t ')) selectedImage = command.split(/\s+/)[3];
     if (command.startsWith('docker run ')) selectedContainer = result.state.containers.at(-1)?.id;
@@ -217,9 +255,32 @@ document.querySelectorAll('[data-runtime]').forEach(button => button.addEventLis
   if (selectedContainer) void runInteractive(`docker exec ${selectedContainer} ${button.dataset.runtime}`);
 }));
 
+document.querySelectorAll('[data-lesson]').forEach(tab => tab.addEventListener('click', () => {
+  lessonProgress = chooseLesson(lessonProgress, tab.dataset.lesson);
+  renderLesson();
+}));
+document.querySelector('#lesson-tabs').addEventListener('keydown', event => {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+  event.preventDefault();
+  const ids = LESSONS.map(item => item.id);
+  const previous = ids.indexOf(lessonProgress.active);
+  const next = event.key === 'Home' ? 0 : event.key === 'End' ? ids.length - 1 : (previous + (event.key === 'ArrowRight' ? 1 : -1) + ids.length) % ids.length;
+  lessonProgress = chooseLesson(lessonProgress, ids[next]);
+  renderLesson();
+  document.querySelector(`[data-lesson="${ids[next]}"]`).focus();
+});
+document.querySelector('#lesson-load').addEventListener('click', () => {
+  const command = suggestedCommand(lessonProgress);
+  if (!command) return;
+  commandInput.value = command;
+  document.querySelector('.terminal-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  commandInput.focus({ preventScroll: true });
+});
+
 document.querySelector('#reset-button').addEventListener('click', () => {
   if (busy) return;
   state = createInitialState();
+  lessonProgress = initialProgress();
   selectedImage = null;
   selectedContainer = null;
   journey.forEach((node, i) => node.classList.toggle('active', i === 0));
