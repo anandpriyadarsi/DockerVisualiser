@@ -29,6 +29,7 @@ jobs:
           node --check src/filesystem.js
           node --check src/app.js
           node --check src/lessons.js
+          node --check scripts/check-live-site.mjs
       - name: Run V1-V3 and guided lesson tests
         run: npm test
       - name: Validate static deployment package
