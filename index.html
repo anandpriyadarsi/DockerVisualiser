@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DockerVisualiser: understand Docker commands through an interactive simulated environment." />
+  <title>DockerVisualiser — Container Playground</title>
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="DockerVisualiser home"><span class="brand-symbol">⬡</span><span>DOCKER<span class="brand-light">VISUALISER</span></span></a>
+      <span class="pill"><span class="online-dot"></span> V2 · Images & Layers</span>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div class="eyebrow">LEARN BY SIMULATING</div>
+        <h1>See what your <em>Docker commands</em> actually do.</h1>
+        <p>Type commands, inspect images, and watch containers change state. A safe simulation, without a real Docker daemon.</p>
+      </section>
+
+      <section class="summary" aria-label="Environment statistics">
+        <div class="stat"><span>LOCAL IMAGES</span><strong id="image-count">0</strong></div>
+        <div class="stat"><span>ALL CONTAINERS</span><strong id="container-count">0</strong></div>
+        <div class="stat"><span>RUNNING</span><strong id="running-count">0</strong></div>
+        <div class="stat stat-tip"><span>YOUR NEXT STEP</span><strong>docker run ubuntu</strong></div>
+      </section>
+
+      <section class="workbench">
+        <div class="panel terminal-panel">
+          <div class="panel-header"><div><span class="panel-kicker">01 / COMMAND LINE</span><h2>Simulated terminal</h2></div><span class="micro-tag">sandboxed</span></div>
+          <div id="terminal-log" class="terminal-log" role="log" aria-label="Terminal output" aria-live="polite"></div>
+          <form id="command-form" class="terminal-form" autocomplete="off">
+            <label for="command" class="prompt-mark">❯</label>
+            <input id="command" name="command" type="text" placeholder="docker run ubuntu" spellcheck="false" autocomplete="off" aria-label="Docker command" />
+            <button id="run-button" type="submit">Run <span aria-hidden="true">↵</span></button>
+          </form>
+          <div class="examples-label">TRY A COMMAND</div>
+          <div class="examples">
+            <button type="button" data-command="docker pull ubuntu">pull ubuntu</button>
+            <button type="button" data-command="docker run ubuntu">run ubuntu</button>
+            <button type="button" data-command="docker ps -a">ps -a</button>
+            <button type="button" data-command="docker help">help</button>
+            <button type="button" data-command="docker images">images</button>
+            <button type="button" data-command="docker history iris-app">image history</button>
+          </div>
+          <p class="keyboard-hint">Tip: ↑ and ↓ browse previous commands.</p>
+        </div>
+
+        <div class="panel playground-panel">
+          <div class="panel-header"><div><span class="panel-kicker">02 / LIVE STATE</span><h2>Container playground</h2></div><button id="reset-button" class="ghost-button" type="button">↺ Reset</button></div>
+          <div class="playground">
+            <div class="shelf-header"><span>HOST / IMAGE LIBRARY</span><span>▦</span></div>
+            <div id="image-shelf" class="image-shelf"></div>
+            <div id="layer-inspector" class="layer-inspector" aria-live="polite">
+              <p class="empty-note">Select an image to inspect its ordered layers.</p>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">↓ <span>creates containers from images</span></div>
+            <div class="shelf-header"><span>HOST / CONTAINERS</span><span>◈</span></div>
+            <div id="container-shelf" class="container-shelf"></div>
+          </div>
+          <div id="stage-message" class="stage-message" role="status" aria-live="polite" data-state="ready">Ready to simulate Docker commands.</div>
+        </div>
+      </section>
+      <section class="builder-panel" aria-label="Dockerfile image builder">
+        <div class="builder-heading"><div><span class="panel-kicker">03 / DOCKERFILE LAB</span><h2>Build an image, see every layer</h2><p>Edit the Dockerfile, build a tagged image, then inspect or run it.</p></div><span class="micro-tag">No Docker daemon</span></div>
+        <div class="builder-grid">
+          <div class="editor-col">
+            <label for="dockerfile-editor" class="editor-label">Dockerfile <span>Supported: FROM · WORKDIR · COPY · RUN · CMD</span></label>
+            <textarea id="dockerfile-editor" spellcheck="false" rows="8"># This file is only simulated; commands are never executed.
+FROM ubuntu
+WORKDIR /app
+COPY app.js /app/
+RUN echo ready
+CMD ["node", "app.js"]</textarea>
+            <div class="build-controls">
+              <label for="image-tag">Image tag</label><input id="image-tag" value="iris-app" spellcheck="false" aria-label="Build image tag" />
+              <button id="build-button" type="button">Build image ↗</button>
+            </div>
+          </div>
+          <div class="build-explainer">
+            <h3>How a build works</h3>
+            <div id="build-journey" class="build-journey" aria-live="polite">
+              <div class="journey-step active"><span>01</span><strong>Dockerfile</strong><small>Read instructions, top to bottom</small></div>
+              <div class="journey-step"><span>02</span><strong>Layers</strong><small>Reuse cached layers when possible</small></div>
+              <div class="journey-step"><span>03</span><strong>Image</strong><small>Tag the immutable image snapshot</small></div>
+              <div class="journey-step"><span>04</span><strong>Container</strong><small>Use docker run &lt;image&gt;</small></div>
+            </div>
+            <p class="learning-note">This is a teaching model. Registry downloads, RUN, COPY, and CMD are represented as simulated events, not executed commands.</p>
+          </div>
+        </div>
+      </section>
+      <footer>DockerVisualiser V2 · A browser-only model · Commands are never sent to a system shell. <a href="./docs/ROADMAP.md">Development roadmap</a></footer>
+    </main>
+  </div>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
