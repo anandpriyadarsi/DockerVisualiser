@@ -1,45 +1,33 @@
-# Recruitment implementation roadmap
+# DockerVisualiser — 2026 recruitment roadmap
 
-## V1 — Containers (first deliverable)
+## Completed implementation
 
-- [x] Parse documented Docker command subset without invoking a real shell
-- [x] Simulate `docker pull`, `run`, `start`, `stop`, `rm`
-- [x] Simulate `docker ps`, `docker ps -a`, `docker images` (extra helpers)
-- [x] Deterministic container IDs, image cache, and atomic failure behavior
-- [x] Render a responsive terminal, host image library and animated containers
-- [x] Node-based behavior tests
-- [x] Automated headless browser smoke checks on V1; recheck V2 with responsive screenshots
-- [ ] Optional V1 improvements: per-step animated staging, persistence on refresh
+### Version 1 — Containers
+- [x] Simulated pull, run, start, stop, remove, ps and images with state validation
+- [x] Deterministic simulated image cache and container IDs
+- [x] Animated, responsive command terminal and container cards
 
-## V2 — Images and layers (required for complete recruitment submission)
+### Version 2 — Images and layers
+- [x] Read Dockerfile instructions FROM, WORKDIR, COPY, RUN, CMD
+- [x] Simulated image build, ordered layer visualization and cache reuse
+- [x] Image history, snapshots and invalid-build atomicity tests
+- [x] Windows acceptance: 18 tests passed and UI screenshots supplied
 
-- [x] Model images and ordered layers independently from containers
-- [x] `docker pull <image>` with layer download/caching animation
-- [x] Parse a simplified editable Dockerfile
-- [x] `docker build -t <name> .` generating ordered image layers
-- [x] Animated Dockerfile → layers → image → container trace
-- [x] Tests for caching, invalid syntax, duplicate layer reuse, build failures
+### Version 3 — Virtual filesystem and processes
+- [x] Independent per-container virtual file tree, seeded by WORKDIR/COPY
+- [x] PID 1 and recent simulated docker exec processes
+- [x] Safe simulated exec: pwd, ls, ps, mkdir, touch, write, cat, rm
+- [x] Filesystem/process explorer UI and helpful errors on invalid input
+- [x] Stop/restart preserves files; stopped containers reject exec
+- [x] 25 total unit tests passed locally; GitHub CI checks required before main promotion
 
-## V3 — Filesystem and processes (required for complete recruitment submission)
+## Finish recruitment submission
+- [ ] Confirm Ubuntu/Windows tests and Chromium smoke checks on V3 commit
+- [ ] Publicly deploy static playground (GitHub repository remains private)
+- [ ] Check public URL from a clean browser session and mobile layout
+- [ ] Record an actual demonstration video of all three versions
+- [ ] Review README and documentation of simulator limitations, AI assistance and credits
+- [ ] Rehearse explanation of layer caching, isolation and process model
+- [ ] Submit the first-year form by 20 October 2026, 11:59 PM IST
 
-- [ ] Give every container an isolated in-memory folder/file tree
-- [ ] Maintain simplified process table with PID 1
-- [ ] Safe parser for `docker exec <container> <allowed-operation>`
-- [ ] Visualise filesystem mutations and processes; never execute raw text
-- [ ] Tests for container isolation, start/stop behavior, invalid paths and atomic errors
-
-## Acceptance and submission
-
-- [ ] Verify V1, V2, V3 against the exact challenge specification
-- [ ] Add accessibility and mobile checks
-- [ ] Add explanation mode and sensible visual animation delays
-- [ ] Document unsupported real-Docker semantics accurately
-- [ ] Create **private** GitHub repository for this task
-- [ ] Add mentor [Varshini Adurti](https://github.com/VarshiniAdurti28) as collaborator
-- [ ] Commit changes across multiple dates with informative messages
-- [ ] Deploy the completed playground on a public URL (Netlify/Vercel)
-- [ ] Record an actual demonstration video (screenshare and voice if possible)
-- [ ] Credit external references, assets, libraries; maintain README
-- [ ] Submit official first-year form before 20 Oct 2026 11:59 PM IST
-
-This is a start, not yet a complete recruitment submission.
+Official challenge: https://github.com/WebClub-NITK/GDGxIris-Recruitments-2026/blob/main/Challenges/DockerVisualiser.md
