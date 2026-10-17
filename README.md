@@ -2,7 +2,16 @@
 
 **Task ID:** `DockerVisualiser`  
 **Category:** 1st-year Challenge  
-**Status:** Versions 1–3 and guided practice implemented. Netlify deployment candidate exists; anonymous/public acceptance and real demo video remain to be completed.
+**Status:** Versions 1–3 and guided practice implemented. Site deployed (public accessibility reported by applicant); genuine phone-screen demonstration recorded, edited and shared. Final automated deployment verification and first-year form submission remain pending.
+
+## Recruitment submission links (17 October 2026)
+
+- **Live playground:** https://prismatic-lamington-67be56.netlify.app/ (reported publicly accessible by applicant; external scripted acceptance still pending)
+- **Demonstration:** https://drive.google.com/file/d/1GMBPOgHI5H0fiBdP-WJ6-wBLZNCBc-yW/view (2:02 genuine phone-screen recording, applicant's voice; Google Drive permission verified as **anyone with link: reader**)
+- **Source repository:** https://github.com/anandpriyadarsi/DockerVisualiser (**private**; mentor `VarshiniAdurti28` has verified **write** access)
+- **First-year recruitment form:** https://forms.gle/rzd6zap9YTTd7tx46 — **not yet submitted**; deadline **20 October 2026, 11:59 PM IST**
+
+The project remains an educational browser-only simulation: it does not use a Docker daemon, execute a shell, or perform actual image downloads/build steps. The video demonstrates the application's actual UI, not a simulated mock recording.
 
 ## What this does
 
@@ -65,7 +74,7 @@ The simulator automatically pulls a missing image when `docker run` is issued, c
 
 Three interactive missions now teach **Containers**, **Image layers**, and **Files & processes**. The “Use this command” button prefills the terminal; a checkpoint completes only after a successful expected command. The progress is in memory and resets with the environment. This is deliberately beginner-friendly but still teaches actual state transitions, rather than simply rewarding clicks.
 
-To prepare the safe, minimal public website folder, run `npm run build`. The `dist/` folder contains only browser app assets and is ignored by Git. See [public deployment guide](docs/DEPLOYMENT_AND_DEMO.md) and the [exact final acceptance and demo plan](docs/FINAL_ACCEPTANCE_AND_DEMO.md). A deployment candidate is available at https://prismatic-lamington-67be56.netlify.app/; public/incognito accessibility still needs verification. **The real demo video and submission form are not completed yet.**
+To prepare the safe, minimal public website folder, run `npm run build`. The `dist/` folder contains only browser app assets and is ignored by Git. See [public deployment guide](docs/DEPLOYMENT_AND_DEMO.md) and the [exact final acceptance and demo plan](docs/FINAL_ACCEPTANCE_AND_DEMO.md). The applicant reports that the [deployed Netlify website](https://prismatic-lamington-67be56.netlify.app/) opens publicly in Chrome. Independent live asset checks and the official first-year recruitment form remain pending. **A real phone-screen demonstration with the applicant's own voice has been recorded and shared.**
 
 For a read-only external check of the live CSS and JavaScript paths, use `npm run check:live -- https://prismatic-lamington-67be56.netlify.app/` (PowerShell: `npm.cmd run check:live -- https://prismatic-lamington-67be56.netlify.app/`).
 
@@ -109,7 +118,7 @@ No external services, credentials, analytics or APIs are used by this prototype.
 
 ## Scope and limitations
 
-V1-V3 functionality exists, but the **recruitment submission is not complete** until it is publicly deployed, reviewed visually, and demonstrated in a video. The simulator intentionally supports a safe subset of Docker commands and stylized CSS isometric objects rather than real container infrastructure or a full 3D engine.
+V1-V3 functionality exists, with a deployed playground and real demonstration video. **The recruitment submission is not complete until the remaining release/access checks are performed and the first-year form is submitted.** The simulator intentionally supports a safe subset of Docker commands and stylized CSS isometric objects rather than real container infrastructure or a full 3D engine.
 
 ## Recruitment notes
 
