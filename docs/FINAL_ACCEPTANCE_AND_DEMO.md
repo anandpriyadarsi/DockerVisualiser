@@ -7,6 +7,8 @@
 **Real demo (2:02):** https://drive.google.com/file/d/1GMBPOgHI5H0fiBdP-WJ6-wBLZNCBc-yW/view — genuine high-resolution phone screen recording, applicant's original narration; anyone-with-link read access confirmed in Drive metadata.  
 **Submission state (17 October 2026):** app and video prepared; applicant reports public Netlify access; scripted live checks/last-commit CI and official form still outstanding.
 
+**Verified cross-platform CI:** [Final code-changing PR #3 run 38414619218](https://github.com/anandpriyadarsi/DockerVisualiser/actions/runs/38414619218) passed Ubuntu, Windows and Chromium desktop/mobile smoke jobs; [release gate run 38406777744](https://github.com/anandpriyadarsi/DockerVisualiser/actions/runs/38406777744) likewise passed. This does not verify the live Netlify assets or documentation-only commits.
+
 ## 1. Public acceptance: one command
 
 From the repo on Windows, update and run:
