@@ -26,10 +26,10 @@
 - [x] Guided beginner missions and static dist/ packaging implemented on main at 429afc3
 - [ ] Verify release-gate branch CI and review its deployment artifact check
 - [ ] Build and verify the public-only artifact with `npm.cmd run build` and `npm.cmd run verify:release`
-- [ ] Publicly deploy **only** dist/ via Netlify Drop (GitHub repository remains private)
-- [ ] Check public URL from a clean browser session and mobile layout
-- [ ] Record an actual demonstration video of all three versions
-- [ ] Review README and documentation of simulator limitations, AI assistance and credits
+- [x] Public Netlify website reported accessible by applicant (GitHub repository remains private). Independent asset-manifest verification still pending
+- [x] Applicant confirms website accessible on Chrome and provided a genuine mobile demonstration. Independent scripted live-site checks remain pending
+- [x] Genuine demonstration of all three versions with applicant voice, edited and shared: https://drive.google.com/file/d/1GMBPOgHI5H0fiBdP-WJ6-wBLZNCBc-yW/view (anyone-reader Drive permission confirmed)
+- [x] README and final-submission documentation updated with limits, AI assistance, demo and deployment links
 - [ ] Rehearse explanation of layer caching, isolation and process model
 - [ ] Submit the first-year form by 20 October 2026, 11:59 PM IST
 
