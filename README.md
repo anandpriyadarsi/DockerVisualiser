@@ -10,6 +10,7 @@
 - **Demonstration:** https://drive.google.com/file/d/1GMBPOgHI5H0fiBdP-WJ6-wBLZNCBc-yW/view (2:02 genuine phone-screen recording, applicant's voice; Google Drive permission verified as **anyone with link: reader**)
 - **Source repository:** https://github.com/anandpriyadarsi/DockerVisualiser (**private**; mentor `VarshiniAdurti28` has verified **write** access)
 - **First-year recruitment form:** https://forms.gle/rzd6zap9YTTd7tx46 — **not yet submitted**; deadline **20 October 2026, 11:59 PM IST**
+- **Verified CI evidence:** [GitHub Actions run 38414619218](https://github.com/anandpriyadarsi/DockerVisualiser/actions/runs/38414619218) — Ubuntu, Windows and Chromium desktop/mobile jobs all **passed** on final code-changing PR #3; the most recent documentation-only main commits do not yet have independently confirmed CI results.
 
 The project remains an educational browser-only simulation: it does not use a Docker daemon, execute a shell, or perform actual image downloads/build steps. The video demonstrates the application's actual UI, not a simulated mock recording.
 
