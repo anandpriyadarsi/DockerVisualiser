@@ -24,8 +24,8 @@
 ## Finish recruitment submission
 - [x] V3 verified on Ubuntu, Windows and Chromium at commit 0ed4ae8
 - [x] Guided beginner missions and static dist/ packaging implemented on main at 429afc3
-- [ ] Verify release-gate branch CI and review its deployment artifact check
-- [ ] Build and verify the public-only artifact with `npm.cmd run build` and `npm.cmd run verify:release`
+- [x] Release gate [CI run 38406777744](https://github.com/anandpriyadarsi/DockerVisualiser/actions/runs/38406777744) passed on Ubuntu, Windows and Chromium. Final code-changing PR #3 [run 38414619218](https://github.com/anandpriyadarsi/DockerVisualiser/actions/runs/38414619218) also passed all three jobs
+- [x] Automated GitHub release build and `npm run verify:release` passed in verified cross-platform CI. An independent direct run of `check:live` against Netlify remains outstanding
 - [x] Public Netlify website reported accessible by applicant (GitHub repository remains private). Independent asset-manifest verification still pending
 - [x] Applicant confirms website accessible on Chrome and provided a genuine mobile demonstration. Independent scripted live-site checks remain pending
 - [x] Genuine demonstration of all three versions with applicant voice, edited and shared: https://drive.google.com/file/d/1GMBPOgHI5H0fiBdP-WJ6-wBLZNCBc-yW/view (anyone-reader Drive permission confirmed)
