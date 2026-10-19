@@ -16,7 +16,28 @@ const MAX_COMMAND = 250;
 const MAX_FILE = 6000;
 const LAYER_ACTIONS = new Set(['RUN', 'COPY', 'WORKDIR', 'CMD']);
 
-function fail(state, message) { return { ok: false, state, message, steps: [] }; }
+// An intentionally small, documented OFFLINE demonstration catalogue. This never
+// queries Docker Hub and must not pretend that an arbitrary name exists remotely.
+const REGISTRY_EXAMPLES = new Set([
+  'ubuntu', 'alpine', 'nginx', 'redis', 'node', 'python', 'debian',
+  'busybox', 'hello-world', 'httpd',
+]);
+function inDemoRegistry(name) {
+  const path = name.split(':')[0];
+  const image = path.split('/').at(-1).toLowerCase();
+  return REGISTRY_EXAMPLES.has(image) && [
+    image, `library/${image}`, `docker.io/library/${image}`,
+  ].includes(path);
+}
+function registryNotFound(state, name) {
+  const message = `Image "${name}" not found in the OFFLINE simulated registry catalogue. Try ubuntu, alpine, nginx, node or python. No real registry was contacted.`;
+  return fail(state, message, [
+    { kind: 'lookup', message: `Checking offline simulated registry for ${name}` },
+    { kind: 'missing', message },
+  ]);
+}
+
+function fail(state, message, steps = []) { return { ok: false, state, message, steps }; }
 function done(prior, next, message, steps, command) {
   return {
     ok: true, message, steps,
@@ -95,6 +116,7 @@ function help() {
     'docker exec <running-id> pwd | ls /tmp | ps',
     'docker exec <running-id> mkdir /tmp/work | touch /tmp/note.txt',
     'docker exec <running-id> write /tmp/note.txt hello | cat /tmp/note.txt | rm /tmp/note.txt',
+    'Offline registry examples: ubuntu, alpine, nginx, redis, node, python, debian, busybox, hello-world, httpd',
   ].join('\n');
 }
 
@@ -105,6 +127,7 @@ function buildImage(state, imageName, dockerfile, command) {
   catch (error) { return fail(state, error.message); }
   const baseName = parsed[0].arg;
   const found = state.images.find(image => image.name === baseName);
+  if (!found && !inDemoRegistry(baseName)) return registryNotFound(state, baseName);
   const baseImage = found || registryImage(baseName);
   const steps = [{ kind: 'dockerfile', message: `Reading ${parsed.length} Dockerfile instructions` }];
   if (!found) steps.push({ kind: 'pull', message: `Fetching base image ${baseName} (simulated)` });
@@ -178,6 +201,7 @@ export function runCommand(state, rawInput, options = {}) {
   if (action === 'pull' || action === 'run') {
     if (!IMAGE_RE.test(target)) return fail(state, 'Invalid image name. Example: docker pull ubuntu:latest');
     const image = state.images.find(i => i.name === target);
+    if (!image && !inDemoRegistry(target)) return registryNotFound(state, target);
     const resolved = image || registryImage(target);
     const images = image ? state.images : [...state.images, resolved];
     const steps = image ? [] : [
