@@ -18,6 +18,19 @@ The project remains an educational browser-only simulation: it does not use a Do
 
 A safe browser-only Docker simulator: enter supported Docker commands and see the image library and container lifecycle change. It does **not** execute Docker commands or use a real Docker daemon.
 
+### Mentor feedback correction — visible image pulling
+
+The container playground now displays **local lookup → simulated registry lookup → per-layer caching → image ready → container start**, in that order, before adding the image/container to the live state.
+
+- First try `docker run nginx`: three illustrative layers appear progressively while the image and container counters remain unchanged until completion.
+- Repeat `docker run nginx`: the already-cached image is reused, without another simulated download, and a second container is created.
+- Try `docker run definitely-not-in-demo` or `docker pull definitely-not-in-demo`: the offline example registry reports **image not found**; no image, container, counter or history entry is added.
+- `docker build -t test .` with `FROM definitely-not-in-demo` also fails without modifying the simulator state.
+
+**Important:** This is a curated **offline educational catalogue** (ubuntu, alpine, nginx, redis, node, python, debian, busybox, hello-world, httpd). It deliberately does not contact Docker Hub or claim that a registry was queried; example image layers, cache IDs and timings are illustrative. Other registry names, including real images, may be unsupported by this teaching model.
+
+The fix is tested by Node regression tests and Playwright browser screenshots at desktop/mobile sizes. After merging, **redeploy the new `dist/` build**; a manual Netlify Drop deployment does not update merely because GitHub `main` changed.
+
 ### V1 supported commands
 
 ```text

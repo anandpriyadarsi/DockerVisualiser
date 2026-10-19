@@ -67,6 +67,13 @@
           <div class="panel-header"><div><span class="panel-kicker">02 / LIVE STATE</span><h2>Container playground</h2></div><button id="reset-button" class="ghost-button" type="button">↺ Reset</button></div>
           <div class="playground">
             <div class="shelf-header"><span>HOST / IMAGE LIBRARY</span><span>▦</span></div>
+            <section id="pull-visualizer" class="pull-visualizer" aria-label="Simulated registry pull visualization" data-state="idle">
+              <div class="pull-heading"><strong>IMAGE PULL JOURNEY <span class="pull-demo-tag">OFFLINE SIMULATION</span></strong><span id="pull-status" class="pull-status">READY</span></div>
+              <p id="pull-target" class="pull-target">Try <code>docker run nginx</code> to watch local lookup, simulated registry fetch and layer caching.</p>
+              <div class="pull-meter" role="progressbar" aria-label="Simulated pull progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="pull-meter-fill"></span></div>
+              <ol id="pull-steps" class="pull-steps"><li>Waiting for an image command</li></ol>
+              <div id="pull-layers" class="pull-layers" aria-label="Layers cached so far"></div>
+            </section>
             <div id="image-shelf" class="image-shelf"></div>
             <div id="layer-inspector" class="layer-inspector" aria-live="polite">
               <p class="empty-note">Select an image to inspect its ordered layers.</p>

@@ -36,6 +36,13 @@ jobs:
         run: |
           npm run build
           npm run verify:release
+      - name: Save tested Netlify upload package
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-visualiser-netlify-dist
+          path: dist/
+          if-no-files-found: error
 
   browser-smoke:
     name: Chromium desktop/mobile smoke

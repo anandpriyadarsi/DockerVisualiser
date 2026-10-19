@@ -64,6 +64,39 @@ try {
   await page.waitForFunction(() => document.querySelector('#container-shelf')?.textContent.includes('stopped'));
   assert.equal(await page.locator('[data-runtime="ps"]').isDisabled(), true);
 
+  // Mentor acceptance: see an honest missing-registry error with no image/container.
+  const mentorPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const mentorErrors = [];
+  mentorPage.on('pageerror', error => mentorErrors.push(String(error)));
+  await mentorPage.goto(url);
+  await mentorPage.locator('#command').fill('docker run missing-image-for-mentor');
+  await mentorPage.locator('#run-button').click();
+  await mentorPage.waitForFunction(() => document.querySelector('#pull-status')?.textContent === 'IMAGE NOT FOUND');
+  await mentorPage.waitForFunction(() => document.querySelector('#stage-message')?.dataset.state === 'error');
+  assert.equal(await mentorPage.locator('#image-count').textContent(), '0');
+  assert.equal(await mentorPage.locator('#container-count').textContent(), '0');
+  assert.match(await mentorPage.locator('#terminal-log').textContent(), /not found in the OFFLINE simulated registry catalogue/);
+  await mentorPage.screenshot({ path: 'artifacts/mentor-registry-missing.png', fullPage: true });
+
+  // The layer tiles must be visible BEFORE the new image/container is committed.
+  await mentorPage.locator('#command').fill('docker run nginx');
+  await mentorPage.locator('#run-button').click();
+  await mentorPage.waitForFunction(() => document.querySelectorAll('#pull-layers .pull-layer').length >= 1);
+  assert.equal(await mentorPage.locator('#container-count').textContent(), '0');
+  assert.equal(await mentorPage.locator('#image-count').textContent(), '0');
+  await mentorPage.waitForFunction(() => document.querySelector('#pull-status')?.textContent === 'COMPLETE');
+  assert.equal(await mentorPage.locator('#image-count').textContent(), '1');
+  assert.equal(await mentorPage.locator('#container-count').textContent(), '1');
+  assert.equal(await mentorPage.locator('#pull-layers .pull-layer').count(), 3);
+  await mentorPage.screenshot({ path: 'artifacts/mentor-pull-complete.png', fullPage: true });
+
+  await mentorPage.locator('#command').fill('docker run nginx');
+  await mentorPage.locator('#run-button').click();
+  await mentorPage.waitForFunction(() => document.querySelector('#container-count')?.textContent === '2');
+  assert.match(await mentorPage.locator('#pull-target').textContent(), /already cached/);
+  assert.equal(await mentorPage.locator('#pull-layers .pull-layer').count(), 0);
+  assert.deepEqual(mentorErrors, []);
+
   assert.deepEqual(browserErrors, []);
   await page.screenshot({ path: 'artifacts/desktop.png', fullPage: true });
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
