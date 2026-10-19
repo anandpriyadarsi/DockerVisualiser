@@ -12,6 +12,13 @@ const imageShelf = document.querySelector('#image-shelf');
 const containerShelf = document.querySelector('#container-shelf');
 const inspector = document.querySelector('#layer-inspector');
 const stage = document.querySelector('#stage-message');
+const pullPanel = document.querySelector('#pull-visualizer');
+const pullTarget = document.querySelector('#pull-target');
+const pullStatus = document.querySelector('#pull-status');
+const pullSteps = document.querySelector('#pull-steps');
+const pullLayers = document.querySelector('#pull-layers');
+const pullMeter = pullPanel.querySelector('[role="progressbar"]');
+const pullMeterFill = document.querySelector('#pull-meter-fill');
 const runButton = document.querySelector('#run-button');
 const buildButton = document.querySelector('#build-button');
 const editor = document.querySelector('#dockerfile-editor');
@@ -35,6 +42,69 @@ function markJourney(kind) {
   const index = ({ dockerfile: 0, pull: 1, layer: 1, build: 2, create: 3, start: 3, exec: 3, filesystem: 3, process: 3 })[kind];
   if (index === undefined) return;
   journey.forEach((node, i) => node.classList.toggle('active', i === index));
+}
+
+// All visual events are derived from the deterministic simulator result.
+// No registry request, image download, shell command, or disk write occurs here.
+function pullRow(message, kind = 'info') {
+  const li = element('li', `pull-row ${kind}`);
+  li.append(element('span', 'pull-icon', kind === 'error' ? '×' : kind === 'success' ? '✓' : '→'));
+  li.append(element('span', '', message));
+  pullSteps.append(li);
+  li.scrollIntoView?.({ block: 'nearest' });
+}
+function pullProgress(percent) {
+  const value = Math.round(Math.max(0, Math.min(100, percent)));
+  pullMeter.setAttribute('aria-valuenow', String(value));
+  pullMeterFill.style.width = `${value}%`;
+}
+function beginPull(imageName, alreadyCached) {
+  pullSteps.replaceChildren();
+  pullLayers.replaceChildren();
+  pullPanel.dataset.state = 'busy';
+  pullStatus.textContent = alreadyCached ? 'LOCAL CACHE HIT' : 'LOOKING UP';
+  pullTarget.textContent = `Image: ${imageName} · ${alreadyCached ? 'already cached on this simulated host' : 'checking the offline example registry'}`;
+  pullProgress(0);
+  pullRow(alreadyCached ? `Local image ${imageName} found; registry pull skipped.` : `Local image ${imageName} not found.`);
+}
+function showPullStep(step, index, count) {
+  if (step.kind === 'pull') {
+    pullStatus.textContent = 'FETCHING IMAGE';
+    pullRow('Available in offline demo registry — starting simulated pull.');
+  } else if (step.kind === 'layer') {
+    const layer = element('div', 'pull-layer');
+    layer.append(element('span', '', `LAYER ${pullLayers.children.length + 1}`),
+      element('code', '', step.layerId || 'simulated'));
+    pullLayers.append(layer);
+    pullRow(step.message, 'success');
+    pullStatus.textContent = `${pullLayers.children.length} LAYERS CACHED`;
+  } else if (step.kind === 'lookup') {
+    pullStatus.textContent = 'REGISTRY LOOKUP';
+    pullRow(step.message);
+  } else if (step.kind === 'missing') {
+    pullStatus.textContent = 'IMAGE NOT FOUND';
+    pullPanel.dataset.state = 'error';
+    pullRow(step.message, 'error');
+  } else if (step.kind === 'create' || step.kind === 'start') {
+    pullRow(step.message, 'success');
+    pullStatus.textContent = step.kind === 'start' ? 'CONTAINER STARTED' : 'CREATING CONTAINER';
+  }
+  pullProgress((index + 1) / count * 100);
+}
+function finishPull(ok) {
+  pullPanel.dataset.state = ok ? 'complete' : 'error';
+  if (ok) {
+    pullStatus.textContent = 'COMPLETE';
+    pullProgress(100);
+  }
+}
+function resetPull() {
+  pullPanel.dataset.state = 'idle';
+  pullStatus.textContent = 'READY';
+  pullTarget.textContent = 'Try docker run nginx to watch local lookup, simulated registry fetch and layer caching.';
+  pullSteps.replaceChildren(element('li', '', 'Waiting for an image command'));
+  pullLayers.replaceChildren();
+  pullProgress(0);
 }
 
 function renderLayers() {
@@ -198,23 +268,39 @@ async function runInteractive(command) {
     historyIndex = recentCommands.length;
   }
   const result = runCommand(state, command, { dockerfile: editor.value });
+  const parts = command.trim().split(/\s+/);
+  const imageCommand = parts[0] === 'docker' && ['pull', 'run'].includes(parts[1]) && parts.length === 3;
+  const missingRegistry = result.steps.some(step => step.kind === 'missing');
+  const imageName = imageCommand ? parts[2] :
+    missingRegistry ? result.steps[0].message.replace(/^Checking offline simulated registry for /, '') : null;
+  const showJourney = !!imageName && (result.ok || missingRegistry);
+  if (showJourney) {
+    const cached = state.images.some(image => image.name === imageName);
+    beginPull(imageName, cached);
+    stage.textContent = cached ? 'Local image cache hit; no remote lookup required.' : `Looking up ${imageName} in the offline demonstration registry…`;
+    stage.dataset.state = 'busy';
+    await wait(420);
+  }
+  for (const [index, step] of result.steps.entries()) {
+    stage.textContent = step.message;
+    stage.dataset.state = 'busy';
+    markJourney(step.kind);
+    if (showJourney) showPullStep(step, index, result.steps.length);
+    await wait(showJourney && step.kind === 'layer' ? 460 : showJourney ? 350 : 200);
+  }
+  if (showJourney) finishPull(result.ok);
   appendTerminal(command, result.message, result.ok);
   if (result.ok) {
-    for (const step of result.steps) {
-      stage.textContent = step.message;
-      stage.dataset.state = 'busy';
-      markJourney(step.kind);
-      await wait(200);
-    }
     lessonProgress = observeCommand(lessonProgress, command, result);
     state = result.state;
     if (command.startsWith('docker build -t ')) selectedImage = command.split(/\s+/)[3];
     if (command.startsWith('docker run ')) selectedContainer = result.state.containers.at(-1)?.id;
+    if (imageCommand && result.state.images.some(image => image.name === imageName)) selectedImage = imageName;
     render();
     stage.textContent = result.steps.length ? 'Simulation updated successfully.' : 'State unchanged.';
     stage.dataset.state = 'ready';
   } else {
-    stage.textContent = 'Command rejected. Docker state was not changed.';
+    stage.textContent = result.message;
     stage.dataset.state = 'error';
   }
   busy = false;
@@ -286,6 +372,7 @@ document.querySelector('#reset-button').addEventListener('click', () => {
   journey.forEach((node, i) => node.classList.toggle('active', i === 0));
   terminalLog.replaceChildren();
   appendTerminal('', 'Environment reset. Try docker run ubuntu.', true);
+  resetPull();
   stage.textContent = 'Ready to simulate Docker commands.';
   stage.dataset.state = 'ready';
   render();
