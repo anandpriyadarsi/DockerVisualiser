@@ -1,0 +1,37 @@
+name: Verify actual Netlify deployment
+on:
+  push:
+    branches:
+      - verification/live-netlify-2026-10-19
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-acceptance:
+    name: Public site assets and real-browser mentor regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out verified source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check deployed HTML, CSS and JavaScript
+        run: npm run check:live -- https://prismatic-lamington-67be56.netlify.app/
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Validate real deployed site in Chromium desktop and mobile
+        run: node smoke/live-netlify-verification.mjs
+      - name: Preserve external-site evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-visualiser-live-netlify-verification
+          path: artifacts/live/
+          if-no-files-found: ignore
