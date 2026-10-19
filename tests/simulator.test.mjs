@@ -84,3 +84,57 @@ test('a second stop and malformed container IDs fail safely', () => {
   assert.equal(runCommand(state, 'docker stop c001').ok, false);
   assert.equal(runCommand(state, 'docker start ../c001').ok, false);
 });
+
+test('unknown registry image fails with an explicit lookup and no new image or container', () => {
+  const original = createInitialState();
+  for (const cmd of ['docker run definitely-not-in-demo', 'docker pull definitely-not-in-demo']) {
+    const result = runCommand(original, cmd);
+    assert.equal(result.ok, false, cmd);
+    assert.strictEqual(result.state, original, 'failed lookup must be atomic');
+    assert.deepEqual(result.steps.map(step => step.kind), ['lookup', 'missing']);
+    assert.match(result.message, /not found.*offline|offline.*not found/i);
+    assert.match(result.message, /no real registry was contacted/i);
+  }
+  assert.equal(original.images.length, 0);
+  assert.equal(original.containers.length, 0);
+  assert.equal(original.nextId, 1);
+});
+
+test('valid sample registry images pull once; cached runs do not re-pull', () => {
+  let state = createInitialState();
+  const first = runCommand(state, 'docker run nginx');
+  assert.equal(first.ok, true);
+  assert.deepEqual(first.steps.map(step => step.kind), ['pull', 'layer', 'layer', 'layer', 'create', 'start']);
+  state = first.state;
+  const second = runCommand(state, 'docker run nginx');
+  assert.equal(second.ok, true);
+  assert.deepEqual(second.steps.map(step => step.kind), ['create', 'start']);
+  assert.equal(second.state.images.length, 1);
+  assert.deepEqual(second.state.containers.map(c => c.id), ['c001', 'c002']);
+});
+
+test('missing Dockerfile FROM image aborts the entire build without changing state', () => {
+  const state = createInitialState();
+  const file = 'FROM definitely-not-in-demo\nWORKDIR /app\nCMD ["node", "app.js"]';
+  const result = runCommand(state, 'docker build -t foo .', { dockerfile: file });
+  assert.equal(result.ok, false);
+  assert.strictEqual(result.state, state);
+  assert.deepEqual(result.steps.map(step => step.kind), ['lookup', 'missing']);
+  assert.equal(state.history.length, 0);
+});
+
+test('existing local custom image works without querying example registry', () => {
+  const file = 'FROM ubuntu\nRUN echo ready';
+  const first = runCommand(createInitialState(), 'docker build -t custom-app .', { dockerfile: file });
+  assert.equal(first.ok, true);
+  const next = runCommand(first.state, 'docker run custom-app');
+  assert.equal(next.ok, true);
+  assert.deepEqual(next.steps.map(step => step.kind), ['create', 'start']);
+});
+
+test('names that masquerade as Docker Hub library paths are not silently accepted', () => {
+  const state = createInitialState();
+  const result = runCommand(state, 'docker run unknown-org/ubuntu');
+  assert.equal(result.ok, false);
+  assert.strictEqual(result.state, state);
+});
