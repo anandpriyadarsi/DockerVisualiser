@@ -51,7 +51,7 @@ function pullRow(message, kind = 'info') {
   li.append(element('span', 'pull-icon', kind === 'error' ? '×' : kind === 'success' ? '✓' : '→'));
   li.append(element('span', '', message));
   pullSteps.append(li);
-  li.scrollIntoView?.({ block: 'nearest' });
+  pullSteps.scrollTop = pullSteps.scrollHeight;
 }
 function pullProgress(percent) {
   const value = Math.round(Math.max(0, Math.min(100, percent)));
