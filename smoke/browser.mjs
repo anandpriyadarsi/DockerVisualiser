@@ -95,6 +95,24 @@ try {
   await mentorPage.waitForFunction(() => document.querySelector('#container-count')?.textContent === '2');
   assert.match(await mentorPage.locator('#pull-target').textContent(), /already cached/);
   assert.equal(await mentorPage.locator('#pull-layers .pull-layer').count(), 0);
+
+  // Mentor regression: an ID is NOT an action, and c003 does not exist yet.
+  for (const invalidCommand of ['docker c003', 'docker stop c003', 'docker exec c003 ps']) {
+    await mentorPage.locator('#command').fill(invalidCommand);
+    await mentorPage.locator('#run-button').click();
+    await mentorPage.waitForFunction(() => document.querySelector('#pull-status')?.textContent === 'COMMAND REJECTED');
+    await mentorPage.waitForFunction(() => document.querySelector('#stage-message')?.dataset.state === 'error');
+    assert.equal(await mentorPage.locator('#container-count').textContent(), '2', invalidCommand);
+    assert.equal(await mentorPage.locator('#image-count').textContent(), '1', invalidCommand);
+    assert.match(await mentorPage.locator('#terminal-log').textContent(), /c003/);
+    assert.equal(await mentorPage.locator('#pull-layers .pull-layer').count(), 0);
+  }
+  await mentorPage.screenshot({ path: 'artifacts/mentor-invalid-docker-c003.png', fullPage: true });
+  // Valid commands still work after the errors.
+  await mentorPage.locator('#command').fill('docker stop c002');
+  await mentorPage.locator('#run-button').click();
+  await mentorPage.waitForFunction(() => document.querySelector('#container-shelf')?.textContent.includes('stopped'));
+  assert.equal(await mentorPage.locator('#pull-status').textContent(), 'READY');
   assert.deepEqual(mentorErrors, []);
 
   assert.deepEqual(browserErrors, []);

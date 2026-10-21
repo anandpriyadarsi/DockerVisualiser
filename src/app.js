@@ -107,6 +107,18 @@ function resetPull() {
   pullProgress(0);
 }
 
+// Do not leave a previous successful image-pull animation saying COMPLETE
+// when a later invalid Docker command is rejected.
+function showRejectedCommand(command, message) {
+  pullPanel.dataset.state = 'error';
+  pullStatus.textContent = 'COMMAND REJECTED';
+  pullTarget.textContent = `Invalid command: ${command.trim()}`;
+  pullSteps.replaceChildren();
+  pullLayers.replaceChildren();
+  pullProgress(0);
+  pullRow(message, 'error');
+}
+
 function renderLayers() {
   inspector.replaceChildren();
   const image = state.images.find(i => i.name === selectedImage);
@@ -288,7 +300,13 @@ async function runInteractive(command) {
     if (showJourney) showPullStep(step, index, result.steps.length);
     await wait(showJourney && step.kind === 'layer' ? 460 : showJourney ? 350 : 200);
   }
-  if (showJourney) finishPull(result.ok);
+  if (showJourney) {
+    finishPull(result.ok);
+  } else if (!result.ok) {
+    showRejectedCommand(command, result.message);
+  } else {
+    resetPull();
+  }
   appendTerminal(command, result.message, result.ok);
   if (result.ok) {
     lessonProgress = observeCommand(lessonProgress, command, result);
