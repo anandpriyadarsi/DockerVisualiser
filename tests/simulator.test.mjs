@@ -138,3 +138,34 @@ test('names that masquerade as Docker Hub library paths are not silently accepte
   assert.equal(result.ok, false);
   assert.strictEqual(result.state, state);
 });
+
+
+test('mentor case: docker c003 is not a command, and c003 cannot be used if absent', () => {
+  let state = createInitialState();
+  state = apply(state, 'docker run ubuntu');
+  state = apply(state, 'docker run ubuntu');
+  assert.deepEqual(state.containers.map(c => c.id), ['c001', 'c002']);
+  const original = JSON.stringify(state);
+  for (const input of ['docker c003', 'docker stop c003', 'docker start c003',
+    'docker rm c003', 'docker exec c003 ps', 'docker run c003', 'docker pull c003']) {
+    const result = runCommand(state, input);
+    assert.equal(result.ok, false, input);
+    assert.strictEqual(result.state, state, 'Rejected command must not mutate state');
+    assert.equal(JSON.stringify(state), original);
+    assert.equal(result.state.containers.length, 2);
+  }
+  assert.match(runCommand(state, 'docker c003').message, /unknown docker command "c003"/i);
+  assert.match(runCommand(state, 'docker stop c003').message, /does not exist/i);
+});
+
+test('container c003 is a valid ID only with a valid action after creation', () => {
+  let state = createInitialState();
+  for (let i = 0; i < 3; i++) state = apply(state, 'docker run alpine');
+  const invalid = runCommand(state, 'docker c003');
+  assert.equal(invalid.ok, false);
+  assert.strictEqual(invalid.state, state);
+  state = apply(state, 'docker stop c003');
+  assert.equal(state.containers[2].status, 'stopped');
+  state = apply(state, 'docker start c003');
+  assert.equal(state.containers[2].status, 'running');
+});
