@@ -194,8 +194,11 @@ export function runCommand(state, rawInput, options = {}) {
     const containers = state.containers.map(c => c.id === target ? { ...c, ...virtual.runtime } : c);
     return done(state, { ...state, containers }, `[${target}] ${virtual.message}`, virtual.steps, input);
   }
-  if (!['pull', 'run', 'start', 'stop', 'rm'].includes(action) || args.length !== 3 || extra !== undefined) {
-    return fail(state, 'Unknown or incomplete command. Type docker help to see supported commands.');
+  if (!['pull', 'run', 'start', 'stop', 'rm'].includes(action)) {
+    return fail(state, `Unknown Docker command "${action}". A container ID like c003 is not a command. Use docker help to see supported commands.`);
+  }
+  if (args.length !== 3 || extra !== undefined) {
+    return fail(state, `Incorrect syntax for docker ${action}. Type docker help to see supported commands.`);
   }
 
   if (action === 'pull' || action === 'run') {
