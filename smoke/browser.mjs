@@ -116,6 +116,16 @@ try {
   assert.deepEqual(mentorErrors, []);
 
   assert.deepEqual(browserErrors, []);
+  // Docker Academy integration: query string deep links to the correct guided mission.
+  const linked = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
+  await linked.goto(`${url}?lesson=images-containers`);
+  assert.equal(await linked.locator('[data-lesson="images-containers"]').getAttribute('aria-selected'), 'true');
+  assert.equal(await linked.locator('#lesson-command').textContent(), 'docker pull nginx');
+  await linked.locator('#reset-button').click();
+  assert.equal(await linked.locator('[data-lesson="images-containers"]').getAttribute('aria-selected'), 'true');
+  assert.equal(await linked.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'linked mission mobile horizontal overflow');
+  await linked.screenshot({ path: 'artifacts/docker-academy-linked-mobile.png', fullPage: true });
+  await linked.close();
   await page.screenshot({ path: 'artifacts/desktop.png', fullPage: true });
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
   await mobile.goto(url);
