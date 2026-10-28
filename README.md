@@ -84,6 +84,18 @@ The image library and container lifecycle are held in browser memory and reset o
 
 The simulator automatically pulls a missing image when `docker run` is issued, caches that image, creates unique container IDs, and rejects invalid state transitions without partially modifying the environment.
 
+## Docker Academy integration (candidate V3.1; review branch only)
+
+A proposed fourth guided mission, **Images vs containers**, demonstrates an essential Docker concept: **one reusable nginx image can create two separate containers**. Learners must explicitly run each command and observe the difference between the image library and container runtime.
+
+After the feature is merged and **a new Netlify deployment** is published, a Docker Academy course lesson can link to:
+
+`https://prismatic-lamington-67be56.netlify.app/?lesson=images-containers`
+
+This deep link only selects a named, built-in lesson. It does not execute a Docker command, accept remote scripts, or start real containers. The mission asks the learner to pull an image, run it twice, stop one instance, inspect both with `docker ps -a`, and restart the stopped instance.
+
+**Teaching-model limitations:** The simulation is not Docker Engine. For example, it keeps its example containers running for predictable exploration; in real Docker, a container's lifetime depends on its main process and a plain `docker run ubuntu` typically exits soon after starting. Educational sample layers, image-fetch events and process behavior are simplified. Avoid treating successful simulated missions as proof that a command has been tested against real Docker.
+
 ## Guided learning and final recruitment delivery
 
 Three interactive missions now teach **Containers**, **Image layers**, and **Files & processes**. The “Use this command” button prefills the terminal; a checkpoint completes only after a successful expected command. The progress is in memory and resets with the environment. This is deliberately beginner-friendly but still teaches actual state transitions, rather than simply rewarding clicks.
