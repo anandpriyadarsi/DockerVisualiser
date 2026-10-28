@@ -313,8 +313,21 @@ async function runInteractive(command) {
   }
   appendTerminal(command, result.message, result.ok);
   if (result.ok) {
+    const previousLesson = activeLesson(lessonProgress);
+    const previousIndex = lessonProgress.tracks[previousLesson.id].index;
     lessonProgress = observeCommand(lessonProgress, command, result);
     state = result.state;
+    // Optional companion-course integration. No grades, identifiers, or private data are sent.
+    // A course embedding this simulator must verify BOTH event.origin and event.source.
+    const completedTrack = lessonProgress.tracks[previousLesson.id];
+    if (window.parent !== window &&
+        completedTrack.index === previousLesson.steps.length &&
+        previousIndex < previousLesson.steps.length) {
+      const completion = { type: 'docker-academy:mission-complete', version: 1,
+        missionId: previousLesson.id };
+      // Only public mission ID is shared; never send command history or filesystem data.
+      window.parent.postMessage(completion, '*');
+    }
     if (command.startsWith('docker build -t ')) selectedImage = command.split(/\s+/)[3];
     if (command.startsWith('docker run ')) selectedContainer = result.state.containers.at(-1)?.id;
     if (imageCommand && result.state.images.some(image => image.name === imageName)) selectedImage = imageName;
