@@ -116,6 +116,37 @@ try {
   assert.deepEqual(mentorErrors, []);
 
   assert.deepEqual(browserErrors, []);
+  // The companion course may embed the simulator and receive a minimal verified
+  // mission completion event. It must reject events from other origins/sources.
+  const academyPage = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
+  await academyPage.goto(url);
+  await academyPage.evaluate((source) => {
+    window.academyCompleted = null;
+    window.addEventListener('message', event => {
+      if (event.origin === location.origin && event.source === document.querySelector('#academy-test-frame')?.contentWindow)
+        window.academyCompleted = event.data;
+    });
+    const iframe = document.createElement('iframe');
+    iframe.id = 'academy-test-frame';
+    iframe.src = source + '?lesson=images-containers';
+    document.body.append(iframe);
+  }, url);
+  const embedded = academyPage.frameLocator('#academy-test-frame');
+  await embedded.locator('#lesson-load').waitFor();
+  for (let i = 0; i < 6; i++) {
+    await embedded.locator('#lesson-load').click();
+    await embedded.locator('#run-button').click();
+    await academyPage.waitForFunction(expected => {
+      const frame = document.querySelector('#academy-test-frame');
+      return frame?.contentDocument?.querySelector('#lesson-progressbar')?.getAttribute('aria-valuenow') === String(expected);
+    }, i + 1, { timeout: 20000 });
+  }
+  await academyPage.waitForFunction(() => window.academyCompleted?.type === 'docker-academy:mission-complete');
+  assert.deepEqual(await academyPage.evaluate(() => JSON.parse(JSON.stringify(window.academyCompleted))), {
+    type: 'docker-academy:mission-complete', version: 1, missionId: 'images-containers'
+  });
+  await academyPage.close();
+
   // Docker Academy integration: query string deep links to the correct guided mission.
   const linked = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
   await linked.goto(`${url}?lesson=images-containers`);
