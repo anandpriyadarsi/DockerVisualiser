@@ -11,5 +11,5 @@ for (const file of files) {
   await mkdir(dirname(target), { recursive: true });
   await copyFile(file, target);
 }
-await writeFile('dist/_headers', `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: no-referrer\n  X-Frame-Options: DENY\n`);
+await writeFile('dist/_headers', `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: no-referrer\n  X-Frame-Options: SAMEORIGIN\n`);
 console.log('Built dist/ for static hosting (HTML, JS, CSS and roadmap only).');
