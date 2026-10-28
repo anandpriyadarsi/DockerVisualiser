@@ -6,6 +6,10 @@ let busy = false;
 let selectedImage = null;
 let selectedContainer = null;
 let lessonProgress = initialProgress();
+// Course deep links can select a supported mission without changing the simulator state.
+// Example: ?lesson=images-containers (used by Docker Academy).
+const requestedLesson = new URLSearchParams(window.location.search).get('lesson');
+if (requestedLesson) lessonProgress = chooseLesson(lessonProgress, requestedLesson);
 const commandInput = document.querySelector('#command');
 const terminalLog = document.querySelector('#terminal-log');
 const imageShelf = document.querySelector('#image-shelf');
@@ -384,7 +388,7 @@ document.querySelector('#lesson-load').addEventListener('click', () => {
 document.querySelector('#reset-button').addEventListener('click', () => {
   if (busy) return;
   state = createInitialState();
-  lessonProgress = initialProgress();
+  lessonProgress = requestedLesson ? chooseLesson(initialProgress(), requestedLesson) : initialProgress();
   selectedImage = null;
   selectedContainer = null;
   journey.forEach((node, i) => node.classList.toggle('active', i === 0));
