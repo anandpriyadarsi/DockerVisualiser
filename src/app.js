@@ -388,7 +388,7 @@ document.querySelector('#lesson-load').addEventListener('click', () => {
 document.querySelector('#reset-button').addEventListener('click', () => {
   if (busy) return;
   state = createInitialState();
-  lessonProgress = initialProgress();
+  lessonProgress = requestedLesson ? chooseLesson(initialProgress(), requestedLesson) : initialProgress();
   selectedImage = null;
   selectedContainer = null;
   journey.forEach((node, i) => node.classList.toggle('active', i === 0));
