@@ -24,6 +24,9 @@ const html = await readFile(join(root, 'index.html'), 'utf8');
 assert.match(html, /src\/app\.js/);
 assert.match(html, /src\/style\.css/);
 assert.match(html, /DockerVisualiser/);
+const headers = await readFile(join(root, '_headers'), 'utf8');
+assert.match(headers, /X-Frame-Options:\s*SAMEORIGIN/i, 'Same-origin Academy embeds are supported');
+assert.doesNotMatch(headers, /X-Frame-Options:\s*DENY/i, 'DENY would block the integrated course simulator');
 for (const file of expected) {
   const full = join(root, file);
   assert.ok((await stat(full)).size > 0, 'Empty deploy asset: ' + file);
