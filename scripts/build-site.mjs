@@ -1,15 +1,38 @@
-/** Produce an intentionally small static deploy folder: no tests, git files, or credentials. */
-import { mkdir, rm, copyFile, writeFile } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
-const files = [
-  'index.html', 'src/app.js', 'src/simulator.js', 'src/filesystem.js',
-  'src/lessons.js', 'src/style.css', 'docs/ROADMAP.md'
-];
-await rm('dist', { recursive: true, force: true });
-for (const file of files) {
-  const target = join('dist', file);
-  await mkdir(dirname(target), { recursive: true });
-  await copyFile(file, target);
+import { mkdir, rm, copyFile, readFile, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { ASSETS, APP_ID } from "./release-assets.mjs";
+await rm("dist", { recursive: true, force: true });
+const checksums = {};
+for (const file of ASSETS) {
+  const bytes = await readFile(file);
+  checksums[file] = createHash("sha256").update(bytes).digest("hex");
+  await mkdir(dirname(join("dist", file)), { recursive: true });
+  await copyFile(file, join("dist", file));
 }
-await writeFile('dist/_headers', `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: no-referrer\n  X-Frame-Options: SAMEORIGIN\n`);
-console.log('Built dist/ for static hosting (HTML, JS, CSS and roadmap only).');
+const buildId = createHash("sha256")
+  .update(JSON.stringify(checksums))
+  .digest("hex")
+  .slice(0, 16);
+let commit = "uncommitted";
+try {
+  commit = execFileSync("git", ["rev-parse", "HEAD"], {
+    encoding: "utf8",
+  }).trim();
+} catch {}
+await writeFile(
+  "dist/build-info.json",
+  JSON.stringify(
+    { app: APP_ID, version: "2.0.0", buildId, sourceCommit: commit, checksums },
+    null,
+    2,
+  ) + "\n",
+);
+await writeFile(
+  "dist/precache.js",
+  `self.CACHE_PREFIX=${JSON.stringify(APP_ID + "-")};self.BUILD_ID=${JSON.stringify(buildId)};self.ASSETS=${JSON.stringify(["./", ...ASSETS.map((p) => "./" + p), "./build-info.json"])};\n`,
+);
+console.log(
+  `Built ${APP_ID} ${buildId}: ${ASSETS.length + 2} complete static assets.`,
+);

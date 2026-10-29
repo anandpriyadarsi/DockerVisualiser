@@ -1,6 +1,6 @@
 {
   "name": "docker-visualiser-nitk-recruitment",
-  "version": "0.4.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,8 @@
     "serve": "python -m http.server 5500",
     "build": "node scripts/build-site.mjs",
     "verify:release": "node scripts/verify-release.mjs",
-    "check:live": "node scripts/check-live-site.mjs"
+    "check:live": "node scripts/check-live-site.mjs",
+    "smoke": "npm run build && node smoke/browser.mjs"
   },
-  "description": "Guided Docker container, image layer and filesystem teaching simulator for GDG × IRIS NITK 2026"
+  "description": "Guided Docker container, image layer and filesystem teaching simulator for GDG \u00d7 IRIS NITK 2026"
 }
