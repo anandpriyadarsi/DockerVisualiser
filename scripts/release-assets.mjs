@@ -1,0 +1,21 @@
+export const APP_ID = "docker-visualiser";
+export const ASSETS = [
+  "index.html",
+  "sw.js",
+  "manifest.webmanifest",
+  "icon.svg",
+  "_headers",
+  "src/app.js",
+  "src/capabilities.js",
+  "src/exercises.js",
+  "src/filesystem.js",
+  "src/image-profiles.js",
+  "src/integration.js",
+  "src/lessons.js",
+  "src/offline.js",
+  "src/parser.js",
+  "src/simulator.js",
+  "src/storage.js",
+  "src/style.css",
+  "docs/ROADMAP.md",
+];

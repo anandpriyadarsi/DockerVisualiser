@@ -1,0 +1,10 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: SAMEORIGIN
+
+/sw.js
+  Cache-Control: no-cache
+
+/precache.js
+  Cache-Control: no-cache
