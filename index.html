@@ -43,7 +43,7 @@
       </section>
       <section class="workbench">
         <div class="panel terminal-panel">
-          <div class="panel-header"><div><span class="panel-kicker">01 / COMMAND LINE</span><h2>Simulated terminal</h2></div><span class="micro-tag">sandboxed</span></div>
+          <div class="panel-header"><div><span class="panel-kicker">01 / COMMAND LINE</span><h2>Simulated terminal</h2></div><div class="panel-actions"><button id="clear-terminal" class="ghost-button" type="button" title="Clear terminal output and command recall; keep images and containers">Clear terminal</button><button id="toggle-terminal" class="ghost-button" type="button" aria-pressed="false" aria-label="Expand terminal to fullscreen">⛶ Fullscreen</button></div></div>
           <div id="terminal-log" class="terminal-log" role="log" aria-label="Terminal output" aria-live="polite"></div>
           <form id="command-form" class="terminal-form" autocomplete="off">
             <label for="command" class="prompt-mark">❯</label>
@@ -61,12 +61,17 @@
             <button type="button" data-command="docker exec c001 ls /">exec ls /</button>
             <button type="button" data-command="docker exec c001 ps">exec ps</button>
           </div>
-          <p class="keyboard-hint">Tip: ↑ and ↓ browse previous commands.</p>
+          <p class="keyboard-hint">Tip: ↑ and ↓ browse previous commands. Type <code>clear</code> or <code>cls</code> to clear this terminal.</p>
         </div>
 
         <div class="panel playground-panel">
           <div class="panel-header"><div><span class="panel-kicker">02 / LIVE STATE</span><h2>Container playground</h2></div><button id="reset-button" class="ghost-button" type="button">↺ Reset</button></div>
+          <div class="playground-tabs" role="tablist" aria-label="Playground view">
+            <button id="images-tab" role="tab" type="button" aria-selected="true" aria-controls="images-view" tabindex="0">Images &amp; pulls</button>
+            <button id="containers-tab" role="tab" type="button" aria-selected="false" aria-controls="containers-view" tabindex="-1">Containers</button>
+          </div>
           <div class="playground">
+            <section id="images-view" class="playground-view" role="tabpanel" aria-labelledby="images-tab">
             <div class="shelf-header"><span>HOST / IMAGE LIBRARY</span><span>▦</span></div>
             <section id="pull-visualizer" class="pull-visualizer" aria-label="Simulated registry pull visualization" data-state="idle">
               <div class="pull-heading"><strong>IMAGE PULL JOURNEY <span class="pull-demo-tag">OFFLINE SIMULATION</span></strong><span id="pull-status" class="pull-status">READY</span></div>
@@ -79,9 +84,12 @@
             <div id="layer-inspector" class="layer-inspector" aria-live="polite">
               <p class="empty-note">Select an image to inspect its ordered layers.</p>
             </div>
+            </section>
+            <section id="containers-view" class="playground-view" role="tabpanel" aria-labelledby="containers-tab" hidden>
             <div class="flow-arrow" aria-hidden="true">↓ <span>creates containers from images</span></div>
             <div class="shelf-header"><span>HOST / CONTAINERS</span><span>◈</span></div>
             <div id="container-shelf" class="container-shelf"></div>
+            </section>
           </div>
           <div id="stage-message" class="stage-message" role="status" aria-live="polite" data-state="ready">Ready to simulate Docker commands.</div>
         </div>
