@@ -148,7 +148,7 @@ try {
   assert.equal(await mentorPage.locator('#container-count').textContent(), '2');
   await mentorPage.locator('#command').fill('docker images');
   await mentorPage.locator('#run-button').click();
-  await mentorPage.waitForFunction(() => document.querySelector('#terminal-log')?.textContent.includes('nginx [nginx:latest]'));
+  await mentorPage.waitForFunction(() => document.querySelector('#terminal-log')?.textContent.includes('• nginx (3 layers)'));
   await mentorPage.locator('#clear-terminal').click();
   assert.equal(await mentorPage.locator('.log-item').count(), 1);
   assert.equal(await mentorPage.locator('#container-count').textContent(), '2');
