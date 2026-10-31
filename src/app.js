@@ -12,6 +12,17 @@ const requestedLesson = new URLSearchParams(window.location.search).get('lesson'
 if (requestedLesson) lessonProgress = chooseLesson(lessonProgress, requestedLesson);
 const commandInput = document.querySelector('#command');
 const terminalLog = document.querySelector('#terminal-log');
+const clearTerminalButton = document.querySelector('#clear-terminal');
+const toggleTerminalButton = document.querySelector('#toggle-terminal');
+const workbench = document.querySelector('.workbench');
+const playgroundTabs = {
+  images: document.querySelector('#images-tab'),
+  containers: document.querySelector('#containers-tab'),
+};
+const playgroundViews = {
+  images: document.querySelector('#images-view'),
+  containers: document.querySelector('#containers-view'),
+};
 const imageShelf = document.querySelector('#image-shelf');
 const containerShelf = document.querySelector('#container-shelf');
 const inspector = document.querySelector('#layer-inspector');
@@ -264,11 +275,42 @@ function renderLesson() {
   });
 }
 
+// Clearing terminal output is a UI action, never a simulated Docker command.
+function clearTerminal() {
+  if (busy) return;
+  terminalLog.replaceChildren();
+  recentCommands.length = 0;
+  historyIndex = 0;
+  commandInput.value = '';
+  appendTerminal('', 'Terminal cleared. Images and containers are unchanged.', true);
+  commandInput.focus();
+}
+
+function setTerminalExpanded(expanded) {
+  workbench.classList.toggle('terminal-expanded', expanded);
+  document.body.classList.toggle('terminal-fullscreen-open', expanded);
+  toggleTerminalButton.setAttribute('aria-pressed', String(expanded));
+  toggleTerminalButton.setAttribute('aria-label', expanded ? 'Exit fullscreen terminal' : 'Expand terminal to fullscreen');
+  toggleTerminalButton.textContent = expanded ? '↙ Exit fullscreen' : '⛶ Fullscreen';
+}
+
+function showPlaygroundView(view, focusTab = false) {
+  for (const name of ['images', 'containers']) {
+    const selected = name === view;
+    playgroundTabs[name].setAttribute('aria-selected', String(selected));
+    playgroundTabs[name].tabIndex = selected ? 0 : -1;
+    playgroundViews[name].hidden = !selected;
+  }
+  if (focusTab) playgroundTabs[view].focus();
+}
+
 function appendTerminal(command, message, ok) {
   const line = element('div', 'log-item');
   if (command) line.append(element('div', 'command-line', `❯ ${command}`));
   line.append(element('pre', ok ? 'terminal-ok' : 'terminal-error', message));
   terminalLog.append(line);
+  // Bound retained output without affecting the actual simulation state.
+  while (terminalLog.childElementCount > 120) terminalLog.firstElementChild.remove();
   terminalLog.scrollTop = terminalLog.scrollHeight;
 }
 
@@ -278,6 +320,7 @@ async function runInteractive(command) {
   busy = true;
   runButton.disabled = true;
   buildButton.disabled = true;
+  clearTerminalButton.disabled = true;
   document.querySelectorAll('[data-command]').forEach(button => { button.disabled = true; });
   if (command.trim()) {
     recentCommands.push(command);
@@ -341,6 +384,7 @@ async function runInteractive(command) {
   busy = false;
   runButton.disabled = false;
   buildButton.disabled = false;
+  clearTerminalButton.disabled = false;
   document.querySelectorAll('[data-command]').forEach(button => { button.disabled = false; });
   renderRuntime();
   commandInput.focus();
@@ -350,6 +394,10 @@ document.querySelector('#command-form').addEventListener('submit', event => {
   event.preventDefault();
   const command = commandInput.value;
   commandInput.value = '';
+  if (/^(clear|cls)$/i.test(command.trim())) {
+    clearTerminal();
+    return;
+  }
   void runInteractive(command);
 });
 
@@ -396,6 +444,27 @@ document.querySelector('#lesson-load').addEventListener('click', () => {
   commandInput.value = command;
   document.querySelector('.terminal-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
   commandInput.focus({ preventScroll: true });
+});
+
+clearTerminalButton.addEventListener('click', clearTerminal);
+toggleTerminalButton.addEventListener('click', () => {
+  setTerminalExpanded(!workbench.classList.contains('terminal-expanded'));
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && workbench.classList.contains('terminal-expanded')) {
+    setTerminalExpanded(false);
+    toggleTerminalButton.focus();
+  }
+});
+for (const name of ['images', 'containers']) {
+  playgroundTabs[name].addEventListener('click', () => showPlaygroundView(name));
+}
+document.querySelector('.playground-tabs').addEventListener('keydown', event => {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+  event.preventDefault();
+  const current = playgroundTabs.images.getAttribute('aria-selected') === 'true' ? 0 : 1;
+  const next = event.key === 'Home' ? 0 : event.key === 'End' ? 1 : (current + 1) % 2;
+  showPlaygroundView(next === 0 ? 'images' : 'containers', true);
 });
 
 document.querySelector('#reset-button').addEventListener('click', () => {
