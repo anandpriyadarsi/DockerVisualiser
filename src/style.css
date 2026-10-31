@@ -120,3 +120,35 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .pull-layer code{font-size:9px;color:#95d6d0}
 @media(max-width:450px){.pull-visualizer{padding:11px}.pull-heading strong{font-size:10px}.pull-target{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.pull-row,.pull-layer,#pull-meter-fill{animation:none;transition:none}}
+
+
+/* Compact workbench: scroll inside fixed panels, never grow the page with command history. */
+.workbench{height:clamp(520px,76dvh,900px)}
+.workbench .panel{height:100%;min-height:0}
+.workbench .terminal-panel,.workbench .playground-panel{min-height:0}
+.workbench .terminal-log{height:auto;min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.workbench .playground{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.panel-actions{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:8px}
+.panel-actions .ghost-button{white-space:nowrap}
+.playground-tabs{display:flex;gap:6px;padding:10px 16px;background:#111e2e;border-bottom:1px solid #2a3b50}
+.playground-tabs button{flex:1;border:1px solid #355064;background:#172638;color:#aac4d2;border-radius:8px;padding:11px 10px;font-size:12px;font-weight:650}
+.playground-tabs button[aria-selected="true"]{color:#dcfff9;background:#1b4148;border-color:#69dfd0}
+.playground-view[hidden]{display:none}
+.playground-view{min-width:0}
+.playground-view .flow-arrow{margin-top:0}
+.workbench.terminal-expanded{position:fixed;inset:0;width:100%;max-width:none;height:100dvh;z-index:1000;margin:0;padding:12px;grid-template-columns:minmax(0,1fr);background:#080d17}
+.workbench.terminal-expanded .playground-panel{display:none}
+.workbench.terminal-expanded .terminal-panel{height:100%;min-height:0}
+body.terminal-fullscreen-open{overflow:hidden}
+@media(max-width:850px){
+  .workbench{height:auto}
+  .workbench .terminal-panel{height:min(78dvh,760px);min-height:440px}
+  .workbench .playground-panel{height:min(72dvh,700px);min-height:370px}
+  .workbench.terminal-expanded{height:100dvh}
+  .workbench.terminal-expanded .terminal-panel{height:100%;min-height:0}
+}
+@media(max-width:450px){
+  .panel-actions{gap:5px}
+  .panel-actions .ghost-button{font-size:10px;padding:7px}
+  .playground-tabs{padding:9px 12px}
+}
