@@ -113,6 +113,45 @@ try {
   await mentorPage.locator('#run-button').click();
   await mentorPage.waitForFunction(() => document.querySelector('#container-shelf')?.textContent.includes('stopped'));
   assert.equal(await mentorPage.locator('#pull-status').textContent(), 'READY');
+  // Workbench UX regression: images and containers are separately navigable.
+  await mentorPage.locator('#containers-tab').click();
+  assert.equal(await mentorPage.locator('#containers-tab').getAttribute('aria-selected'), 'true');
+  assert.equal(await mentorPage.locator('#containers-view').isVisible(), true);
+  assert.equal(await mentorPage.locator('#images-view').isVisible(), false);
+  await mentorPage.locator('#images-tab').click();
+  assert.equal(await mentorPage.locator('#images-view').isVisible(), true);
+
+  // History may scroll inside a fixed terminal; it must not stretch the whole page.
+  const sizes = await mentorPage.evaluate(() => ({
+    workbench: document.querySelector('.workbench').getBoundingClientRect().height,
+    terminal: document.querySelector('.terminal-panel').getBoundingClientRect().height,
+    viewport: innerHeight,
+  }));
+  assert.ok(sizes.workbench <= sizes.viewport, 'workbench stays inside desktop viewport height');
+  assert.ok(Math.abs(sizes.workbench - sizes.terminal) < 3, 'terminal matches fixed workbench height');
+
+  // The fullscreen control is reversible and does not reset the simulated host.
+  await mentorPage.locator('#toggle-terminal').click();
+  assert.equal(await mentorPage.locator('.workbench').evaluate(el => el.classList.contains('terminal-expanded')), true);
+  assert.equal(await mentorPage.locator('#toggle-terminal').getAttribute('aria-pressed'), 'true');
+  assert.equal(await mentorPage.locator('.playground-panel').isVisible(), false);
+  await mentorPage.keyboard.press('Escape');
+  assert.equal(await mentorPage.locator('.workbench').evaluate(el => el.classList.contains('terminal-expanded')), false);
+  assert.equal(await mentorPage.locator('.playground-panel').isVisible(), true);
+
+  // A typed clear is UI-only: commands vanish, images and containers remain.
+  await mentorPage.locator('#command').fill('clear');
+  await mentorPage.locator('#run-button').click();
+  assert.match(await mentorPage.locator('#terminal-log').textContent(), /Terminal cleared/);
+  assert.equal(await mentorPage.locator('.log-item').count(), 1);
+  assert.equal(await mentorPage.locator('#image-count').textContent(), '1');
+  assert.equal(await mentorPage.locator('#container-count').textContent(), '2');
+  await mentorPage.locator('#command').fill('docker images');
+  await mentorPage.locator('#run-button').click();
+  await mentorPage.waitForFunction(() => document.querySelector('#terminal-log')?.textContent.includes('nginx [nginx:latest]'));
+  await mentorPage.locator('#clear-terminal').click();
+  assert.equal(await mentorPage.locator('.log-item').count(), 1);
+  assert.equal(await mentorPage.locator('#container-count').textContent(), '2');
   assert.deepEqual(mentorErrors, []);
 
   assert.deepEqual(browserErrors, []);
